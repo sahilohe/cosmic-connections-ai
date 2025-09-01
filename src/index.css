@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Astral Lab Design System - Cosmic theme with deep space colors and stellar accents */
+
+@layer base {
+  :root {
+    /* Cosmic background gradients */
+    --background: 225 39% 8%;
+    --foreground: 213 31% 91%;
+
+    /* Card and surface colors */
+    --card: 224 39% 10%;
+    --card-foreground: 213 31% 91%;
+
+    /* Popover colors */
+    --popover: 224 39% 10%;
+    --popover-foreground: 213 31% 91%;
+
+    /* Primary cosmic purple */
+    --primary: 258 60% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary stellar blue */
+    --secondary: 217 50% 20%;
+    --secondary-foreground: 213 31% 91%;
+
+    /* Muted cosmic tones */
+    --muted: 217 32% 15%;
+    --muted-foreground: 215 16% 65%;
+
+    /* Accent golden star */
+    --accent: 43 96% 65%;
+    --accent-foreground: 225 39% 8%;
+
+    /* Destructive red */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border and input styling */
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 258 60% 60%;
+
+    /* Cosmic gradients */
+    --gradient-cosmic: linear-gradient(135deg, hsl(225 39% 8%), hsl(258 60% 20%));
+    --gradient-stellar: linear-gradient(135deg, hsl(258 60% 60%), hsl(280 100% 70%));
+    --gradient-nebula: linear-gradient(135deg, hsl(217 50% 20%), hsl(258 60% 30%));
+    --gradient-aurora: linear-gradient(135deg, hsl(43 96% 65%), hsl(258 60% 60%));
+
+    /* Animation durations */
+    --transition-cosmic: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-stellar: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Shadows with cosmic glow */
+    --shadow-cosmic: 0 10px 30px -5px hsl(258 60% 60% / 0.3);
+    --shadow-stellar: 0 20px 40px -10px hsl(258 60% 60% / 0.4);
+    --shadow-nebula: 0 0 40px hsl(43 96% 65% / 0.2);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-cosmic {
+    background: linear-gradient(135deg, hsl(225 39% 8%), hsl(258 60% 20%));
+  }
+  
+  .bg-gradient-stellar {
+    background: linear-gradient(135deg, hsl(258 60% 60%), hsl(280 100% 70%));
+  }
+  
+  .bg-gradient-nebula {
+    background: linear-gradient(135deg, hsl(217 50% 20%), hsl(258 60% 30%));
+  }
+  
+  .bg-gradient-aurora {
+    background: linear-gradient(135deg, hsl(43 96% 65%), hsl(258 60% 60%));
+  }
+}
