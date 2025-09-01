@@ -2,11 +2,11 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CreditBadge } from "./CreditBadge";
 import { Stars, User, Menu } from "lucide-react";
-import { useState } from "react";
+import { useCredits } from "@/contexts/CreditsContext";
 
 export function Navigation() {
   const location = useLocation();
-  const [credits] = useState(25); // Mock credits - will connect to real data later
+  const { credits } = useCredits();
   
   const isActive = (path: string) => location.pathname === path;
 

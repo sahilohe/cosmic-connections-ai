@@ -18,7 +18,7 @@ export default function Landing() {
   const features = [
     {
       icon: Stars,
-      title: "Solo Birth Chart",
+      title: "Birth Chart",
       description: "Generate precise birth charts using Swiss Ephemeris with AI-powered insights",
       credits: 3,
       color: "from-primary to-primary/70"
@@ -91,7 +91,7 @@ export default function Landing() {
               asChild
             >
               <Link to="/solo">
-                Generate Your Chart
+                Generate Your Birth Chart
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
             </Button>

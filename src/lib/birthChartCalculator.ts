@@ -3,7 +3,6 @@ interface BirthData {
   date: string;
   time: string;
   city: string;
-  country: string;
   coordinates: {
     lat: number;
     lng: number;

@@ -21,13 +21,13 @@ import { PlacesAutocomplete } from "@/components/PlacesAutocomplete";
 import { birthChartCalculator } from "@/lib/birthChartCalculator";
 import { openAIService } from "@/lib/openai";
 import { PDFExporter } from "@/lib/pdfExport";
+import { useCredits } from "@/contexts/CreditsContext";
 
 interface BirthData {
   name: string;
   date: string;
   time: string;
   city: string;
-  country: string;
   coordinates: {
     lat: number;
     lng: number;
@@ -35,6 +35,8 @@ interface BirthData {
 }
 
 export default function Solo() {
+  const { credits, deductCredits } = useCredits();
+  
   // Debug logging
   console.log('Solo component loading...');
   console.log('Environment variables:', {
@@ -47,7 +49,6 @@ export default function Solo() {
     date: "",
     time: "",
     city: "",
-    country: "",
     coordinates: null
   });
   
@@ -69,6 +70,12 @@ export default function Solo() {
       return;
     }
 
+    // Check if user has enough credits
+    if (credits < 1) {
+      setError('Insufficient credits. You need 1 credit to generate a birth chart.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
@@ -78,6 +85,9 @@ export default function Solo() {
       console.log('Generated chart:', chart);
       setBirthChart(chart);
       setChartGenerated(true);
+      
+      // Deduct 1 credit for chart generation
+      deductCredits(1);
     } catch (error) {
       console.error('Error generating chart:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate birth chart');
@@ -92,6 +102,12 @@ export default function Solo() {
       return;
     }
 
+    // Check if user has enough credits
+    if (credits < 3) {
+      setError('Insufficient credits. You need 3 credits to generate AI analysis.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     
@@ -99,26 +115,12 @@ export default function Solo() {
       const analysis = await openAIService.analyzeBirthChart(birthData, birthChart);
       setAiAnalysis(analysis);
       setAnalysisGenerated(true);
+      
+      // Deduct 3 credits for AI analysis
+      deductCredits(3);
     } catch (error) {
       console.error('Error generating AI analysis:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate AI analysis');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExportPDF = async () => {
-    if (!birthChart || !birthData.name) {
-      setError('Please generate a birth chart first');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      await PDFExporter.exportBirthChartPDF(birthData, birthChart);
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      setError(error instanceof Error ? error.message : 'Failed to export PDF');
     } finally {
       setLoading(false);
     }
@@ -132,7 +134,13 @@ export default function Solo() {
 
     try {
       setLoading(true);
-      await PDFExporter.exportBirthChartPNG(birthData);
+      await PDFExporter.exportBirthChartPNG({
+        name: birthData.name,
+        date: birthData.date,
+        time: birthData.time,
+        city: birthData.city,
+        coordinates: birthData.coordinates
+      });
     } catch (error) {
       console.error('Error exporting PNG:', error);
       setError(error instanceof Error ? error.message : 'Failed to export PNG');
@@ -150,11 +158,7 @@ export default function Solo() {
     <div className="min-h-screen bg-gradient-cosmic py-20">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Debug info */}
-        <div className="mb-4 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-          <p className="text-blue-500 text-sm">
-            Debug: Component loaded successfully. Environment: {import.meta.env.MODE}
-          </p>
-        </div>
+
         
         {/* Header */}
         <div className="text-center mb-12">
@@ -240,21 +244,12 @@ export default function Solo() {
                 label="Birth Location"
               />
 
-              <div>
-                <Label htmlFor="country">Country</Label>
-                <Input
-                  id="country"
-                  placeholder="Enter your birth country"
-                  value={birthData.country}
-                  onChange={(e) => setBirthData(prev => ({ ...prev, country: e.target.value }))}
-                  className="bg-background/50"
-                />
-              </div>
+
 
               <div className="pt-4">
                 <Button 
                   onClick={handleGenerateChart}
-                  disabled={!birthData.name || !birthData.date || !birthData.coordinates || loading}
+                  disabled={!birthData.name || !birthData.date || !birthData.coordinates || loading || credits < 1}
                   className="w-full"
                   variant="stellar"
                   size="lg"
@@ -267,7 +262,7 @@ export default function Solo() {
                   ) : (
                     <>
                       <Stars className="w-4 h-4 mr-2" />
-                      Generate Chart (Free)
+                      Generate Chart (1 Credit)
                     </>
                   )}
                 </Button>
@@ -373,30 +368,11 @@ export default function Solo() {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex justify-center">
                     <Button 
                       variant="cosmic" 
                       size="sm" 
-                      className="flex-1"
-                      onClick={() => handleExportPDF()}
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        <>
-                          <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                          Exporting...
-                        </>
-                      ) : (
-                        <>
-                          <Download className="w-4 h-4 mr-2" />
-                          Export PDF
-                        </>
-                      )}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
+                      className="px-8"
                       onClick={() => handleExportPNG()}
                       disabled={loading}
                     >
@@ -439,10 +415,10 @@ export default function Solo() {
                     AI Analysis
                   </CardTitle>
                   <CardDescription>
-                    Get personalized insights powered by advanced AI
+                    Get personalized insights powered by AstroGPT AI
                   </CardDescription>
                 </div>
-                <CreditBadge credits={3} />
+                <CreditBadge credits={credits} />
               </div>
             </CardHeader>
             <CardContent>
@@ -602,7 +578,7 @@ export default function Solo() {
                   </p>
                   <Button 
                     onClick={handleGenerateAnalysis}
-                    disabled={loading}
+                    disabled={loading || credits < 3}
                     variant="aurora"
                     size="lg"
                   >

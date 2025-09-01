@@ -3,7 +3,6 @@ interface BirthChartData {
   date: string;
   time: string;
   city: string;
-  country: string;
   coordinates?: {
     lat: number;
     lng: number;
@@ -105,7 +104,7 @@ BIRTH INFORMATION:
 - Name: ${birthData.name}
 - Date: ${birthData.date}
 - Time: ${birthData.time}
-- Location: ${birthData.city}, ${birthData.country}
+- Location: ${birthData.city}
 ${birthData.coordinates ? `- Coordinates: ${birthData.coordinates.lat}°N, ${birthData.coordinates.lng}°E` : ''}
 
 ${chartData ? `CHART DATA: ${JSON.stringify(chartData, null, 2)}` : 'CHART DATA: Not provided (please provide general astrological insights based on birth information)'}

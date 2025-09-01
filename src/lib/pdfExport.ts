@@ -6,7 +6,6 @@ interface BirthChartData {
   date: string;
   time: string;
   city: string;
-  country: string;
   coordinates?: {
     lat: number;
     lng: number;
@@ -149,7 +148,7 @@ export class PDFExporter {
     pdf.setTextColor(255, 255, 255); // White color
     pdf.text(`${birthData.name}`, 20, 30);
     pdf.text(`Born: ${birthData.date} at ${birthData.time}`, 20, 35);
-    pdf.text(`Location: ${birthData.city}, ${birthData.country}`, 20, 40);
+    pdf.text(`Location: ${birthData.city}`, 20, 40);
     
     if (birthData.coordinates) {
       pdf.text(`Coordinates: ${birthData.coordinates.lat.toFixed(4)}°N, ${birthData.coordinates.lng.toFixed(4)}°E`, 20, 45);
