@@ -142,4 +142,137 @@
   .bg-gradient-aurora {
     background: linear-gradient(135deg, hsl(43 96% 65%), hsl(258 60% 60%));
   }
+
+  /* Enhanced animations */
+  .animate-twinkle {
+    animation: twinkle 2s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .animate-cosmic-float {
+    animation: cosmic-float 6s ease-in-out infinite;
+  }
+
+  .animate-star-shimmer {
+    animation: star-shimmer 4s ease-in-out infinite;
+  }
+
+  .animate-nebula-drift {
+    animation: nebula-drift 8s ease-in-out infinite;
+  }
+
+  /* Custom keyframes */
+  @keyframes twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { 
+      box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 40px hsl(var(--accent) / 0.6);
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes cosmic-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes star-shimmer {
+    0%, 100% { opacity: 0.8; transform: rotate(0deg); }
+    50% { opacity: 1; transform: rotate(180deg); }
+  }
+
+  @keyframes nebula-drift {
+    0%, 100% { 
+      background-position: 0% 50%;
+      transform: scale(1);
+    }
+    50% { 
+      background-position: 100% 50%;
+      transform: scale(1.02);
+    }
+  }
+
+  /* Enhanced hover effects */
+  .hover-cosmic-glow:hover {
+    box-shadow: 0 0 30px hsl(var(--accent) / 0.4);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+
+  .hover-stellar-shine:hover {
+    background: linear-gradient(135deg, hsl(258 60% 60%), hsl(280 100% 70%), hsl(43 96% 65%));
+    background-size: 200% 200%;
+    animation: nebula-drift 2s ease-in-out infinite;
+  }
+
+  /* Enhanced card styling */
+  .card-cosmic {
+    background: linear-gradient(135deg, hsl(224 39% 10% / 0.8), hsl(258 60% 20% / 0.3));
+    backdrop-filter: blur(10px);
+    border: 1px solid hsl(var(--border) / 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .card-cosmic:hover {
+    border-color: hsl(var(--accent) / 0.5);
+    box-shadow: 0 10px 30px hsl(var(--accent) / 0.2);
+    transform: translateY(-2px);
+  }
+
+  /* Enhanced input styling */
+  .input-cosmic {
+    background: hsl(var(--background) / 0.6);
+    border: 1px solid hsl(var(--border) / 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .input-cosmic:focus {
+    border-color: hsl(var(--accent) / 0.8);
+    box-shadow: 0 0 0 3px hsl(var(--accent) / 0.1);
+    background: hsl(var(--background) / 0.8);
+  }
+
+  /* Enhanced button styling */
+  .btn-cosmic {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .btn-cosmic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-cosmic:hover::before {
+    left: 100%;
+  }
+
+  /* Enhanced text styling */
+  .text-cosmic-glow {
+    text-shadow: 0 0 10px hsl(var(--accent) / 0.5);
+  }
+
+  .text-stellar-shine {
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }

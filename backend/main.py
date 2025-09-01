@@ -33,6 +33,7 @@ class BirthData(BaseModel):
     time: str
     city: str
     coordinates: Optional[dict] = None
+    timezone: Optional[str] = None
 
 class PlanetaryPosition(BaseModel):
     planet: str
@@ -204,8 +205,12 @@ async def calculate_birth_chart(birth_data: BirthData):
         
         # Calculate Julian Day using proper timezone conversion
         try:
-            # Get timezone from coordinates
-            tz_name = get_timezone_from_coordinates(lat, lng)
+            # Use provided timezone or get from coordinates
+            if birth_data.timezone:
+                tz_name = birth_data.timezone
+            else:
+                tz_name = get_timezone_from_coordinates(lat, lng)
+            
             local_tz = tz.gettz(tz_name)
             
             # Create local datetime with timezone
@@ -293,7 +298,7 @@ async def calculate_birth_chart(birth_data: BirthData):
             "julianDay": round(julian_day, 5),
             "localTime": dt.strftime("%Y-%m-%d %H:%M:%S"),
             "utcTime": utc_dt.strftime("%Y-%m-%d %H:%M:%S"),
-            "timezone": "UTC",
+            "timezone": tz_name,
             "coordinates": {
                 "lat": lat,
                 "lng": lng

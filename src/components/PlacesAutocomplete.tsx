@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin } from "lucide-react";
+import { MapPin, Globe } from "lucide-react";
 
 declare global {
   interface Window {
@@ -11,10 +11,11 @@ declare global {
 
 interface PlacesAutocompleteProps {
   value: string;
-  onChange: (value: string, coordinates: { lat: number; lng: number } | null) => void;
+  onChange: (value: string, coordinates: { lat: number; lng: number } | null, timezone?: string) => void;
   placeholder?: string;
   label?: string;
   coordinates?: { lat: number; lng: number } | null;
+  timezone?: string;
 }
 
 export function PlacesAutocomplete({ 
@@ -22,7 +23,8 @@ export function PlacesAutocomplete({
   onChange, 
   placeholder = "Search for a city", 
   label = "Birth City",
-  coordinates
+  coordinates,
+  timezone
 }: PlacesAutocompleteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -64,6 +66,52 @@ export function PlacesAutocomplete({
     loadGoogleMaps();
   }, []);
 
+  // Function to get timezone from coordinates using Google Timezone API
+  const getTimezoneFromCoordinates = async (lat: number, lng: number): Promise<string> => {
+    const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
+    if (!apiKey) return 'UTC';
+
+    try {
+      // Get current timestamp for timezone calculation
+      const timestamp = Math.floor(Date.now() / 1000);
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${timestamp}&key=${apiKey}`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'OK' && data.timeZoneId) {
+          return data.timeZoneId;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching timezone:', error);
+    }
+    
+    // Fallback to simplified timezone detection
+    return getSimplifiedTimezone(lat, lng);
+  };
+
+  // Simplified timezone detection as fallback
+  const getSimplifiedTimezone = (lat: number, lng: number): string => {
+    // US timezones
+    if (lng < -100) return 'America/Denver';
+    if (lng < -85) return 'America/Chicago';
+    if (lng < -70) return 'America/New_York';
+    
+    // European timezones
+    if (lng < -10) return 'Europe/London';
+    if (lng < 20) return 'Europe/Berlin';
+    if (lng < 40) return 'Europe/Moscow';
+    
+    // Asian timezones
+    if (lng < 80) return 'Asia/Kolkata';
+    if (lng < 120) return 'Asia/Shanghai';
+    if (lng < 140) return 'Asia/Tokyo';
+    
+    return 'UTC';
+  };
+
   useEffect(() => {
     if (!isLoaded || !inputRef.current || !window.google) return;
 
@@ -80,7 +128,7 @@ export function PlacesAutocomplete({
       });
 
       // Handle place selection
-      const handlePlaceSelect = () => {
+      const handlePlaceSelect = async () => {
         const place = autocompleteRef.current?.getPlace();
         if (place && place.geometry && place.geometry.location) {
           const lat = place.geometry.location.lat();
@@ -89,7 +137,10 @@ export function PlacesAutocomplete({
           // Use formatted_address for full location display, fallback to name
           const fullLocation = place.formatted_address || place.name || '';
           
-          onChange(fullLocation, { lat, lng });
+          // Get timezone for the selected location
+          const timezoneId = await getTimezoneFromCoordinates(lat, lng);
+          
+          onChange(fullLocation, { lat, lng }, timezoneId);
         }
       };
 
@@ -107,8 +158,8 @@ export function PlacesAutocomplete({
 
   return (
     <div>
-      <Label htmlFor="city" className="flex items-center gap-2">
-        <MapPin className="w-4 h-4" />
+      <Label htmlFor="city" className="text-base font-semibold flex items-center gap-2 mb-2">
+        <Globe className="w-4 h-4" />
         {label}
       </Label>
       <Input
@@ -117,19 +168,26 @@ export function PlacesAutocomplete({
         placeholder={placeholder}
         value={value}
         onChange={(e) => {
-          // Only update the city name, preserve existing coordinates
-          // The coordinates will be updated when a place is selected from autocomplete
-          onChange(e.target.value, coordinates);
+          // Only update the city name, preserve existing coordinates and timezone
+          onChange(e.target.value, coordinates, timezone);
         }}
-        className="bg-background/50"
+        className="bg-background/50 text-base h-12 input-cosmic"
       />
+      {timezone && (
+        <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+          Timezone: {timezone}
+        </p>
+      )}
       {!isLoaded && !error && (
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+          <div className="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
           Loading location search...
         </p>
       )}
       {error && (
-        <p className="text-xs text-red-500 mt-1">
+        <p className="text-sm text-red-500 mt-2 flex items-center gap-2">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
           {error}
         </p>
       )}

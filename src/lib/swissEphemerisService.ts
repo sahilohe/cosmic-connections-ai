@@ -7,6 +7,7 @@ interface BirthData {
     lat: number;
     lng: number;
   } | null;
+  timezone?: string;
 }
 
 interface PlanetaryPosition {
