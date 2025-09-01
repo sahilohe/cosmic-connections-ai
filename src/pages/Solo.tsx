@@ -233,6 +233,7 @@ export default function Solo() {
 
               <PlacesAutocomplete
                 value={birthData.city}
+                coordinates={birthData.coordinates}
                 onChange={(city, coordinates) => 
                   setBirthData(prev => ({ 
                     ...prev, 

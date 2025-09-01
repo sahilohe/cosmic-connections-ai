@@ -14,13 +14,15 @@ interface PlacesAutocompleteProps {
   onChange: (value: string, coordinates: { lat: number; lng: number } | null) => void;
   placeholder?: string;
   label?: string;
+  coordinates?: { lat: number; lng: number } | null;
 }
 
 export function PlacesAutocomplete({ 
   value, 
   onChange, 
   placeholder = "Search for a city", 
-  label = "Birth City" 
+  label = "Birth City",
+  coordinates
 }: PlacesAutocompleteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -66,6 +68,11 @@ export function PlacesAutocomplete({
     if (!isLoaded || !inputRef.current || !window.google) return;
 
     try {
+      // Clean up existing autocomplete if it exists
+      if (autocompleteRef.current && window.google) {
+        window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      }
+
       // Initialize autocomplete
       autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
         types: ['(cities)'],
@@ -78,9 +85,11 @@ export function PlacesAutocomplete({
         if (place && place.geometry && place.geometry.location) {
           const lat = place.geometry.location.lat();
           const lng = place.geometry.location.lng();
-          const cityName = place.name || place.formatted_address || '';
           
-          onChange(cityName, { lat, lng });
+          // Use formatted_address for full location display, fallback to name
+          const fullLocation = place.formatted_address || place.name || '';
+          
+          onChange(fullLocation, { lat, lng });
         }
       };
 
@@ -107,7 +116,11 @@ export function PlacesAutocomplete({
         id="city"
         placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange(e.target.value, null)}
+        onChange={(e) => {
+          // Only update the city name, preserve existing coordinates
+          // The coordinates will be updated when a place is selected from autocomplete
+          onChange(e.target.value, coordinates);
+        }}
         className="bg-background/50"
       />
       {!isLoaded && !error && (
