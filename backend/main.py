@@ -8,7 +8,7 @@ from dateutil import tz
 from dateutil import parser
 import math
 
-app = FastAPI(title="Cosmic Connections AI - Swiss Ephemeris API")
+app = FastAPI(title="AstroSoul - Swiss Ephemeris API")
 
 # Enable CORS for frontend
 app.add_middleware(

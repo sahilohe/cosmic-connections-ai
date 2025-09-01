@@ -19,7 +19,7 @@ export function Navigation() {
             <Stars className="w-6 h-6 text-primary-foreground animate-twinkle" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Astral Lab
+            AstroSoul
           </span>
         </Link>
 

@@ -136,7 +136,7 @@ export default function Solo() {
         time: birthData.time,
         city: birthData.city,
         coordinates: birthData.coordinates
-      });
+      }, 'birth-chart-container');
     } catch (error) {
       console.error('Error exporting PNG:', error);
       setError(error instanceof Error ? error.message : 'Failed to export PNG');
@@ -157,12 +157,10 @@ export default function Solo() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-3">
             <Stars className="w-10 h-10 text-accent animate-twinkle" />
-            <div className="text-4xl md:text-5xl font-bold text-stellar-shine">Generate Birth Chart</div>
+            <div className="text-4xl md:text-5xl font-bold text-stellar-shine">Generate Your Birth Chart</div>
             <Stars className="w-10 h-10 text-accent animate-twinkle" />
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Generate your precise birth chart using Swiss Ephemeris calculations
-          </p>
+
         </div>
 
         {error && (
@@ -274,9 +272,7 @@ export default function Solo() {
                 <Stars className="w-6 h-6 text-accent" />
                 Birth Chart
               </CardTitle>
-              <CardDescription className="text-base">
-                Precise Calculations using Swiss Ephemeris
-              </CardDescription>
+  
             </CardHeader>
             <CardContent>
               {chartGenerated && birthChart ? (
