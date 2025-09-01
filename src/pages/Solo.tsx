@@ -18,9 +18,9 @@ import {
 import { CreditBadge } from "@/components/CreditBadge";
 import { ChartWheel } from "@/components/ChartWheel";
 import { PlacesAutocomplete } from "@/components/PlacesAutocomplete";
-import { birthChartCalculator } from "@/lib/birthChartCalculator";
 import { openAIService } from "@/lib/openai";
 import { PDFExporter } from "@/lib/pdfExport";
+import { swissEphemerisService } from "@/lib/swissEphemerisService";
 import { useCredits } from "@/contexts/CreditsContext";
 
 interface BirthData {
@@ -36,13 +36,6 @@ interface BirthData {
 
 export default function Solo() {
   const { credits, deductCredits } = useCredits();
-  
-  // Debug logging
-  console.log('Solo component loading...');
-  console.log('Environment variables:', {
-    googleKey: import.meta.env.VITE_GOOGLE_PLACES_API_KEY,
-    openaiKey: import.meta.env.VITE_OPENAI_API_KEY
-  });
 
   const [birthData, setBirthData] = useState<BirthData>({
     name: "",
@@ -80,9 +73,7 @@ export default function Solo() {
     setError(null);
     
     try {
-      console.log('Generating chart with data:', birthData);
-      const chart = await birthChartCalculator.calculateBirthChart(birthData);
-      console.log('Generated chart:', chart);
+      const chart = await swissEphemerisService.calculateBirthChart(birthData);
       setBirthChart(chart);
       setChartGenerated(true);
       

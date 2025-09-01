@@ -1,8 +1,6 @@
 import React from 'react';
 
 export default function Test() {
-  console.log('Test component loading...');
-  
   return (
     <div className="min-h-screen bg-red-500 flex items-center justify-center">
       <div className="text-white text-center">

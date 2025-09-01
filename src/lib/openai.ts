@@ -26,11 +26,13 @@ export class OpenAIService {
   private orgId?: string;
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     const orgId = import.meta.env.VITE_OPENAI_ORG_ID;
     
-    if (!this.apiKey) {
-      throw new Error('OpenAI API key not found. Please set VITE_OPENAI_API_KEY in your .env file');
+    // Don't throw error if API key is missing, just log a warning
+    if (!this.apiKey || this.apiKey === 'your_actual_openai_api_key_here') {
+      console.warn('OpenAI API key not found or not configured. Please set VITE_OPENAI_API_KEY in your .env file');
+      this.apiKey = '';
     }
     
     // Only set orgId if it's provided, not empty, and not a placeholder
@@ -42,6 +44,20 @@ export class OpenAIService {
   }
 
   async analyzeBirthChart(birthData: BirthChartData, chartData?: any): Promise<AIAnalysisResponse> {
+    // If no API key is configured, return a placeholder response
+    if (!this.apiKey) {
+      return {
+        insights: ['Please configure your OpenAI API key to get AI-powered insights'],
+        personalityTraits: ['API key not configured'],
+        personalLife: ['Please set up your OpenAI API key in the .env file'],
+        workLife: ['Configuration required'],
+        lifePath: ['Set VITE_OPENAI_API_KEY in your environment variables'],
+        relationships: ['API key needed'],
+        challenges: ['Missing OpenAI configuration'],
+        opportunities: ['Configure API key for full functionality']
+      };
+    }
+
     try {
       const prompt = this.buildAnalysisPrompt(birthData, chartData);
       
