@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CreditBadge } from "./CreditBadge";
+import { ThemeToggle } from "./ThemeToggle";
 import { Stars, User, Menu } from "lucide-react";
 import { useCredits } from "@/contexts/CreditsContext";
 
@@ -54,6 +55,7 @@ export function Navigation() {
         {/* Right Side */}
         <div className="flex items-center space-x-4">
           <CreditBadge credits={credits} />
+          <ThemeToggle />
           <Button variant="ghost" size="icon" className="hover:bg-accent/10">
             <User className="w-4 h-4" />
           </Button>
