@@ -1,7 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CreditBadge } from "./CreditBadge";
-import { ThemeToggle } from "./ThemeToggle";
 import { Stars, User, Menu } from "lucide-react";
 import { useCredits } from "@/contexts/CreditsContext";
 
@@ -20,7 +19,7 @@ export function Navigation() {
             <Stars className="w-6 h-6 text-primary-foreground animate-twinkle" />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            AstroSoul
+            Astral Lab
           </span>
         </Link>
 
@@ -55,7 +54,6 @@ export function Navigation() {
         {/* Right Side */}
         <div className="flex items-center space-x-4">
           <CreditBadge credits={credits} />
-          <ThemeToggle />
           <Button variant="ghost" size="icon" className="hover:bg-accent/10">
             <User className="w-4 h-4" />
           </Button>
