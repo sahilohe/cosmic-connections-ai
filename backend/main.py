@@ -187,8 +187,7 @@ def get_timezone_from_coordinates(lat: float, lng: float) -> str:
     else:
         return 'UTC'
 
-@app.post("/api/birth-chart", response_model=BirthChart)
-async def calculate_birth_chart(birth_data: BirthData):
+async def calculate_birth_chart_internal(birth_data: BirthData) -> BirthChart:
     """Calculate birth chart using Swiss Ephemeris"""
     try:
         # Parse date and time
@@ -342,10 +341,84 @@ async def calculate_birth_chart(birth_data: BirthData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating birth chart: {str(e)}")
 
+@app.post("/api/birth-chart", response_model=BirthChart)
+async def calculate_birth_chart(birth_data: BirthData):
+    """Public endpoint for birth chart calculation"""
+    return await calculate_birth_chart_internal(birth_data)
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Swiss Ephemeris API is running"}
+
+@app.post("/api/compatibility-analysis")
+async def compatibility_analysis(user_birth_data: BirthData, partner_birth_data: BirthData):
+    """Get compatibility analysis between two birth charts"""
+    try:
+        # Calculate both birth charts
+        user_chart = await calculate_birth_chart_internal(user_birth_data)
+        partner_chart = await calculate_birth_chart_internal(partner_birth_data)
+        
+        # Calculate compatibility aspects
+        compatibility_aspects = []
+        
+        # Compare planetary positions between charts
+        user_planets = {planet.planet: planet.longitude for planet in user_chart.planets}
+        partner_planets = {planet.planet: planet.longitude for planet in partner_chart.planets}
+        
+        aspect_angles = {
+            "Conjunction": 0,
+            "Sextile": 60,
+            "Square": 90,
+            "Trine": 120,
+            "Opposition": 180
+        }
+        
+        for planet_name in user_planets:
+            if planet_name in partner_planets:
+                user_longitude = user_planets[planet_name]
+                partner_longitude = partner_planets[planet_name]
+                
+                angle_diff = abs(user_longitude - partner_longitude)
+                if angle_diff > 180:
+                    angle_diff = 360 - angle_diff
+                
+                for aspect_name, aspect_angle in aspect_angles.items():
+                    orb = abs(angle_diff - aspect_angle)
+                    if orb <= 8:  # 8 degree orb for compatibility
+                        compatibility_aspects.append({
+                            "planet": planet_name,
+                            "aspect": aspect_name,
+                            "orb": round(orb, 2),
+                            "strength": "strong" if orb <= 3 else "moderate" if orb <= 5 else "weak"
+                        })
+        
+        # Calculate overall compatibility score based on aspects
+        compatibility_score = 50  # Base score
+        for aspect in compatibility_aspects:
+            if aspect["aspect"] in ["Trine", "Sextile"]:
+                compatibility_score += 10 if aspect["strength"] == "strong" else 5
+            elif aspect["aspect"] in ["Square", "Opposition"]:
+                compatibility_score -= 5 if aspect["strength"] == "strong" else 2
+            elif aspect["aspect"] == "Conjunction":
+                compatibility_score += 5  # Neutral to positive
+        
+        compatibility_score = max(0, min(100, compatibility_score))
+        
+        return {
+            "compatibilityScore": round(compatibility_score),
+            "compatibilityAspects": compatibility_aspects,
+            "userChart": user_chart,
+            "partnerChart": partner_chart,
+            "metadata": {
+                "calculationType": "compatibility",
+                "ephemerisData": "Swiss Ephemeris",
+                "aspectOrb": "8 degrees"
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in compatibility analysis: {str(e)}")
 
 @app.post("/api/advanced-analysis")
 async def advanced_analysis(birth_data: BirthData):

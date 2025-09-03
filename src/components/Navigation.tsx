@@ -31,7 +31,7 @@ export function Navigation() {
               isActive('/solo') ? 'text-accent' : 'text-muted-foreground'
             }`}
           >
-            Birth Chart
+            Solo Analysis
           </Link>
           <Link 
             to="/compatibility" 
@@ -54,6 +54,14 @@ export function Navigation() {
         {/* Right Side */}
         <div className="flex items-center space-x-4">
           <CreditBadge credits={credits} />
+          <Link 
+            to="/buy-credits" 
+            className={`text-sm font-medium transition-colors hover:text-accent ${
+              isActive('/buy-credits') ? 'text-accent' : 'text-muted-foreground'
+            }`}
+          >
+            Buy Credits
+          </Link>
           <Button variant="ghost" size="icon" className="hover:bg-accent/10">
             <User className="w-4 h-4" />
           </Button>

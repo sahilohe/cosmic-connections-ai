@@ -5,12 +5,18 @@ interface CreditsContextType {
   deductCredits: (amount: number) => boolean;
   addCredits: (amount: number) => void;
   resetCredits: () => void;
+  // Developer functions
+  setCredits: (amount: number) => void;
+  isDeveloper: boolean;
 }
 
 const CreditsContext = createContext<CreditsContextType | undefined>(undefined);
 
 export function CreditsProvider({ children }: { children: React.ReactNode }) {
-  const [credits, setCredits] = useState<number>(5); // Start with 5 free credits
+  const [credits, setCredits] = useState<number>(3); // Start with 3 free credits
+  
+  // Check if user is in developer mode
+  const isDeveloper = import.meta.env.DEV || localStorage.getItem('cosmic-connections-dev-mode') === 'true';
 
   // Load credits from localStorage on mount
   useEffect(() => {
@@ -38,7 +44,7 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetCredits = () => {
-    setCredits(5); // Reset to 5 free credits
+    setCredits(3); // Reset to 3 free credits
   };
 
   return (
@@ -46,7 +52,9 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
       credits,
       deductCredits,
       addCredits,
-      resetCredits
+      resetCredits,
+      setCredits,
+      isDeveloper
     }}>
       {children}
     </CreditsContext.Provider>

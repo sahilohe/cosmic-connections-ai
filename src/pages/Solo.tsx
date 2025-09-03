@@ -21,6 +21,7 @@ import {
 import { CreditBadge } from "@/components/CreditBadge";
 import { ChartWheel } from "@/components/ChartWheel";
 import { PlacesAutocomplete } from "@/components/PlacesAutocomplete";
+import { InsufficientCreditsModal } from "@/components/InsufficientCreditsModal";
 import { openAIService } from "@/lib/openai";
 import { PDFExporter } from "@/lib/pdfExport";
 import { swissEphemerisService } from "@/lib/swissEphemerisService";
@@ -56,6 +57,11 @@ export default function Solo() {
   const [birthChart, setBirthChart] = useState<any>(null);
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
+  const [insufficientCreditsData, setInsufficientCreditsData] = useState<{
+    requiredCredits: number;
+    featureName: string;
+  } | null>(null);
 
   const handleGenerateChart = async () => {
     if (!birthData.coordinates) {
@@ -82,6 +88,10 @@ export default function Solo() {
       setBirthChart(chart);
       setChartGenerated(true);
       
+      // Save user's birth data and chart to localStorage for compatibility analysis
+      localStorage.setItem('cosmic-connections-user-birth-data', JSON.stringify(birthData));
+      localStorage.setItem('cosmic-connections-user-birth-chart', JSON.stringify(chart));
+      
       // Deduct 1 credit for chart generation
       deductCredits(1);
     } catch (error) {
@@ -100,7 +110,11 @@ export default function Solo() {
 
     // Check if user has enough credits
     if (credits < 3) {
-      setError('Insufficient credits. You need 3 credits to generate AI analysis.');
+      setInsufficientCreditsData({
+        requiredCredits: 3,
+        featureName: 'AI Analysis'
+      });
+      setShowInsufficientCredits(true);
       return;
     }
 
@@ -617,6 +631,20 @@ export default function Solo() {
               )}
             </CardContent>
           </Card>
+        )}
+
+        {/* Insufficient Credits Modal */}
+        {insufficientCreditsData && (
+          <InsufficientCreditsModal
+            isOpen={showInsufficientCredits}
+            onClose={() => {
+              setShowInsufficientCredits(false);
+              setInsufficientCreditsData(null);
+            }}
+            requiredCredits={insufficientCreditsData.requiredCredits}
+            featureName={insufficientCreditsData.featureName}
+            featureIcon={<Sparkles className="w-5 h-5" />}
+          />
         )}
       </div>
     </div>

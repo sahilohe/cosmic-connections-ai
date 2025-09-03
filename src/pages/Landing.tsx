@@ -151,55 +151,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 px-4 bg-card/20">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Choose Your Journey
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Start with 1 free chart daily, upgrade for deeper insights
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            {plans.map((plan, index) => (
-              <Card key={index} className={`relative ${plan.popular ? 'ring-2 ring-accent shadow-stellar' : 'bg-card/50'} backdrop-blur-sm border-border/50 hover:shadow-cosmic transition-all duration-300`}>
-                {plan.popular && (
-                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-gradient-aurora">
-                    Most Popular
-                  </Badge>
-                )}
-                <CardHeader className="text-center">
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <div className="text-3xl font-bold text-accent">
-                    ${plan.price}
-                  </div>
-                  <CardDescription>
-                    {plan.credits} Credits
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <Button 
-                    variant={plan.popular ? "stellar" : "cosmic"} 
-                    className="w-full mb-4"
-                    asChild
-                  >
-                    <Link to="/buy-credits">
-                      Get Credits
-                    </Link>
-                  </Button>
-                  <div className="text-sm text-muted-foreground">
-                    {Math.floor(plan.credits / 3)} Solo Charts
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Disclaimer */}
       <section className="py-12 px-4 border-t border-border/50">
         <div className="max-w-4xl mx-auto text-center">
