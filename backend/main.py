@@ -19,8 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Swiss Ephemeris
-swe.set_ephe_path()
+# Initialize Swiss Ephemeris with local ephemeris data
+swe.set_ephe_path("./ephe")
 
 # Configuration
 DEFAULT_HOUSE = "P"  # Placidus
@@ -68,7 +68,12 @@ PLANET_SYMBOLS = {
     'Saturn': '♄',
     'Uranus': '♅',
     'Neptune': '♆',
-    'Pluto': '♇'
+    'Pluto': '♇',
+    'Chiron': '⚷',
+    'Ceres': '⚳',
+    'Pallas': '⚴',
+    'Juno': '⚵',
+    'Vesta': '⚶'
 }
 
 def degrees_to_sign(degrees: float) -> dict:
@@ -252,7 +257,15 @@ async def calculate_birth_chart(birth_data: BirthData):
         planet_names = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars',
                        'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
         
-        for i, (planet_code, planet_name) in enumerate(zip(bodies, planet_names)):
+        # Add additional asteroids and points for more detailed analysis
+        additional_bodies = [swe.CHIRON, swe.CERES, swe.PALLAS, swe.JUNO, swe.VESTA]
+        additional_names = ['Chiron', 'Ceres', 'Pallas', 'Juno', 'Vesta']
+        
+        # Combine all bodies for calculation
+        all_bodies = bodies + additional_bodies
+        all_names = planet_names + additional_names
+        
+        for i, (planet_code, planet_name) in enumerate(zip(all_bodies, all_names)):
             try:
                 xx, _ = swe.calc_ut(julian_day, planet_code, IFLAG)
                 longitude = xx[0]  # ecliptic longitude
@@ -333,6 +346,111 @@ async def calculate_birth_chart(birth_data: BirthData):
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "message": "Swiss Ephemeris API is running"}
+
+@app.post("/api/advanced-analysis")
+async def advanced_analysis(birth_data: BirthData):
+    """Get advanced astrological analysis with additional calculations"""
+    try:
+        # Parse date and time
+        date_time_str = f"{birth_data.date} {birth_data.time}"
+        dt = parser.parse(date_time_str)
+        
+        # Extract components
+        year = dt.year
+        month = dt.month
+        day = dt.day
+        hour = dt.hour + dt.minute / 60.0 + dt.second / 3600.0
+        
+        # Get coordinates
+        if not birth_data.coordinates:
+            raise HTTPException(status_code=400, detail="Coordinates are required")
+        
+        lat = birth_data.coordinates["lat"]
+        lng = birth_data.coordinates["lng"]
+        
+        # Calculate Julian Day
+        try:
+            if birth_data.timezone:
+                tz_name = birth_data.timezone
+            else:
+                tz_name = get_timezone_from_coordinates(lat, lng)
+            
+            local_tz = tz.gettz(tz_name)
+            local_dt = datetime(year, month, day, dt.hour, dt.minute, tzinfo=local_tz)
+            utc_dt = local_dt.astimezone(tz.UTC)
+            ut_hours = utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600
+            julian_day = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, ut_hours)
+        except Exception as e:
+            local_dt = datetime(year, month, day, dt.hour, dt.minute)
+            utc_dt = local_dt.replace(tzinfo=timezone.utc)
+            ut_hours = utc_dt.hour + utc_dt.minute/60 + utc_dt.second/3600
+            julian_day = swe.julday(utc_dt.year, utc_dt.month, utc_dt.day, ut_hours)
+        
+        # Set up Swiss Ephemeris flags
+        IFLAG = swe.FLG_SWIEPH | swe.FLG_SPEED
+        
+        # Calculate lunar phases and eclipses
+        lunar_phase = swe.lun_phase(julian_day)
+        
+        # Calculate planetary aspects with tighter orbs
+        advanced_aspects = []
+        aspect_angles = {
+            "Conjunction": 0,
+            "Sextile": 60,
+            "Square": 90,
+            "Trine": 120,
+            "Opposition": 180
+        }
+        
+        # Get all planetary positions for aspect calculation
+        all_positions = []
+        bodies = [swe.SUN, swe.MOON, swe.MERCURY, swe.VENUS, swe.MARS,
+                  swe.JUPITER, swe.SATURN, swe.URANUS, swe.NEPTUNE, swe.PLUTO]
+        planet_names = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars',
+                       'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto']
+        
+        for planet_code, planet_name in zip(bodies, planet_names):
+            try:
+                xx, _ = swe.calc_ut(julian_day, planet_code, IFLAG)
+                longitude = xx[0]
+                all_positions.append({
+                    'name': planet_name,
+                    'longitude': longitude
+                })
+            except:
+                continue
+        
+        # Calculate aspects with 5-degree orb for more precision
+        for i, planet1 in enumerate(all_positions):
+            for j, planet2 in enumerate(all_positions[i+1:], i+1):
+                angle_diff = abs(planet1['longitude'] - planet2['longitude'])
+                if angle_diff > 180:
+                    angle_diff = 360 - angle_diff
+                
+                for aspect_name, aspect_angle in aspect_angles.items():
+                    orb = abs(angle_diff - aspect_angle)
+                    if orb <= 5:  # Tighter orb for advanced analysis
+                        advanced_aspects.append({
+                            "planet1": planet1['name'],
+                            "planet2": planet2['name'],
+                            "aspect": aspect_name,
+                            "orb": round(orb, 2),
+                            "strength": "strong" if orb <= 2 else "moderate" if orb <= 3.5 else "weak"
+                        })
+        
+        return {
+            "lunarPhase": round(lunar_phase, 2),
+            "advancedAspects": advanced_aspects,
+            "julianDay": round(julian_day, 5),
+            "metadata": {
+                "calculationType": "advanced",
+                "ephemerisData": "Swiss Ephemeris",
+                "aspectOrb": "5 degrees"
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in advanced analysis: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

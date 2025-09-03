@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin, Globe } from "lucide-react";
@@ -30,6 +30,8 @@ export function PlacesAutocomplete({
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const autocompleteRef = useRef<any>(null);
+  const timezoneCache = useRef<Map<string, string>>(new Map());
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const loadGoogleMaps = async () => {
@@ -45,19 +47,33 @@ export function PlacesAutocomplete({
         return;
       }
 
-      // Load Google Maps script
+      // Check if script is already being loaded
+      const existingScript = document.querySelector(`script[src*="maps.googleapis.com"]`);
+      if (existingScript) {
+        existingScript.addEventListener('load', () => {
+          setIsLoaded(true);
+          setError(null);
+        });
+        return;
+      }
+
+      // Load Google Maps script with optimized parameters
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
       script.async = true;
       script.defer = true;
       
-      script.onload = () => {
+      // Set up global callback
+      (window as any).initGoogleMaps = () => {
         setIsLoaded(true);
         setError(null);
+        delete (window as any).initGoogleMaps;
       };
+      
       script.onerror = () => {
         setError('Failed to load Google Maps API');
         console.error('Failed to load Google Maps API');
+        delete (window as any).initGoogleMaps;
       };
       
       document.head.appendChild(script);
@@ -66,10 +82,21 @@ export function PlacesAutocomplete({
     loadGoogleMaps();
   }, []);
 
-  // Function to get timezone from coordinates using Google Timezone API
-  const getTimezoneFromCoordinates = async (lat: number, lng: number): Promise<string> => {
+  // Function to get timezone from coordinates using Google Timezone API with caching
+  const getTimezoneFromCoordinates = useCallback(async (lat: number, lng: number): Promise<string> => {
+    const cacheKey = `${lat.toFixed(2)},${lng.toFixed(2)}`;
+    
+    // Check cache first
+    if (timezoneCache.current.has(cacheKey)) {
+      return timezoneCache.current.get(cacheKey)!;
+    }
+
     const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
-    if (!apiKey) return 'UTC';
+    if (!apiKey) {
+      const fallback = getSimplifiedTimezone(lat, lng);
+      timezoneCache.current.set(cacheKey, fallback);
+      return fallback;
+    }
 
     try {
       // Get current timestamp for timezone calculation
@@ -81,6 +108,7 @@ export function PlacesAutocomplete({
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'OK' && data.timeZoneId) {
+          timezoneCache.current.set(cacheKey, data.timeZoneId);
           return data.timeZoneId;
         }
       }
@@ -89,8 +117,10 @@ export function PlacesAutocomplete({
     }
     
     // Fallback to simplified timezone detection
-    return getSimplifiedTimezone(lat, lng);
-  };
+    const fallback = getSimplifiedTimezone(lat, lng);
+    timezoneCache.current.set(cacheKey, fallback);
+    return fallback;
+  }, []);
 
   // Simplified timezone detection as fallback
   const getSimplifiedTimezone = (lat: number, lng: number): string => {
@@ -127,21 +157,27 @@ export function PlacesAutocomplete({
         fields: ['name', 'geometry', 'formatted_address', 'address_components']
       });
 
-      // Handle place selection
+      // Handle place selection with debouncing
       const handlePlaceSelect = async () => {
-        const place = autocompleteRef.current?.getPlace();
-        if (place && place.geometry && place.geometry.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          
-          // Use formatted_address for full location display, fallback to name
-          const fullLocation = place.formatted_address || place.name || '';
-          
-          // Get timezone for the selected location
-          const timezoneId = await getTimezoneFromCoordinates(lat, lng);
-          
-          onChange(fullLocation, { lat, lng }, timezoneId);
+        if (debounceTimeout.current) {
+          clearTimeout(debounceTimeout.current);
         }
+        
+        debounceTimeout.current = setTimeout(async () => {
+          const place = autocompleteRef.current?.getPlace();
+          if (place && place.geometry && place.geometry.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            
+            // Use formatted_address for full location display, fallback to name
+            const fullLocation = place.formatted_address || place.name || '';
+            
+            // Get timezone for the selected location
+            const timezoneId = await getTimezoneFromCoordinates(lat, lng);
+            
+            onChange(fullLocation, { lat, lng }, timezoneId);
+          }
+        }, 300); // 300ms debounce
       };
 
       autocompleteRef.current.addListener('place_changed', handlePlaceSelect);

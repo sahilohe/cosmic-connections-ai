@@ -79,16 +79,14 @@ export class OpenAIService {
           messages: [
             {
               role: 'system',
-              content: `You are a friendly astrologer who helps people understand themselves better. Use simple, everyday words that anyone can understand. 
-              Avoid fancy or complicated terms. Be warm, encouraging, and helpful. Focus on practical advice that people can actually use in their daily lives. 
-              Make everything easy to read and understand.`
+              content: `You are a friendly astrologer who gives short, helpful readings. Use simple words everyone understands. Be warm and encouraging. Give practical advice they can use today. Keep everything short and easy to read.`
             },
             {
               role: 'user',
               content: prompt
             }
           ],
-          max_tokens: 2000,
+          max_tokens: 1200,
           temperature: 0.7
         })
       });
@@ -114,40 +112,37 @@ export class OpenAIService {
 
   private buildAnalysisPrompt(birthData: BirthChartData, chartData?: any): string {
     const basePrompt = `
-Please look at this person's birth information and give them helpful, easy-to-understand insights about themselves.
+Give ${birthData.name} a friendly, easy-to-read astrological reading based on their birth info.
 
-BIRTH INFORMATION:
-- Name: ${birthData.name}
-- Date: ${birthData.date}
-- Time: ${birthData.time}
+BIRTH INFO:
+- Born: ${birthData.date} at ${birthData.time}
 - Location: ${birthData.city}
 ${birthData.coordinates ? `- Coordinates: ${birthData.coordinates.lat}°N, ${birthData.coordinates.lng}°E` : ''}
 
-${chartData ? `CHART DATA: ${JSON.stringify(chartData, null, 2)}` : 'CHART DATA: Not provided (please provide general astrological insights based on birth information)'}
+${chartData ? `CHART DATA: ${JSON.stringify(chartData, null, 2)}` : 'CHART DATA: Not provided (give general insights based on birth info)'}
 
-Please give your analysis in this exact format:
+Respond in this exact JSON format:
 {
-  "insights": ["3-4 detailed paragraphs about this person's overall personality and life approach"],
-  "personalityTraits": ["3-4 detailed paragraphs about their natural behaviors, thinking patterns, and character"],
-  "personalLife": ["3-4 detailed paragraphs about their personal relationships, family life, and emotional nature"],
-  "workLife": ["3-4 detailed paragraphs about their career path, work style, and professional talents"],
-  "lifePath": ["3-4 detailed paragraphs about their life journey, purpose, and spiritual growth"],
-  "relationships": ["3-4 detailed paragraphs about how they connect with others, love style, and social nature"],
-  "challenges": ["3-4 detailed paragraphs about potential difficulties and how to work through them"],
-  "opportunities": ["3-4 detailed paragraphs about growth areas and ways to improve their life"]
+  "insights": ["2-3 short, friendly sentences about their overall personality"],
+  "personalityTraits": ["2-3 short sentences about their natural behaviors and character"],
+  "personalLife": ["2-3 short sentences about their relationships and emotional nature"],
+  "workLife": ["2-3 short sentences about their career path and work style"],
+  "lifePath": ["2-3 short sentences about their life journey and purpose"],
+  "relationships": ["2-3 short sentences about how they connect with others"],
+  "challenges": ["2-3 short sentences about potential difficulties and solutions"],
+  "opportunities": ["2-3 short sentences about growth areas and improvements"]
 }
 
-IMPORTANT INSTRUCTIONS:
-- Use simple, everyday words that anyone can understand
-- Avoid fancy or complicated astrology terms
-- Be warm, encouraging, and positive
-- Give practical advice they can actually use
-- Make each bullet point a detailed paragraph (3-4 sentences each)
-- Write like you're talking to a friend, not a textbook
-- Focus on actionable insights they can use in their daily life
-- Be specific and personal, not generic
-- Include both strengths and areas for growth
-- Make it feel like a personal reading just for them
+RULES:
+• Use simple words everyone understands
+• Keep each point short (2-3 sentences max)
+• Be warm and encouraging
+• Give practical advice they can use today
+• Write like talking to a friend
+• Focus on what they can actually do
+• Be specific to them, not generic
+• Include both strengths and growth areas
+• Make it feel personal and helpful
 `;
 
     return basePrompt;

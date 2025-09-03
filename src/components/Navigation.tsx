@@ -31,7 +31,7 @@ export function Navigation() {
               isActive('/solo') ? 'text-accent' : 'text-muted-foreground'
             }`}
           >
-            Solo Chart
+            Birth Chart
           </Link>
           <Link 
             to="/compatibility" 
