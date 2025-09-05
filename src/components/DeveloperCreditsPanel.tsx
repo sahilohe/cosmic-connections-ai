@@ -14,7 +14,8 @@ import {
   Star,
   Heart,
   Users,
-  Sparkles
+  Sparkles,
+  Camera
 } from "lucide-react";
 import { useCredits } from "@/contexts/CreditsContext";
 
@@ -178,6 +179,14 @@ export function DeveloperCreditsPanel() {
                 <div className="flex items-center gap-2">
                   <Users className="w-3 h-3" />
                   Compatibility: 5 credits
+                </div>
+                <div className="flex items-center gap-2">
+                  <Heart className="w-3 h-3" />
+                  Soulmate Analysis: 4 credits
+                </div>
+                <div className="flex items-center gap-2">
+                  <Camera className="w-3 h-3" />
+                  Soulmate Sketch: 6 credits
                 </div>
               </div>
             </div>

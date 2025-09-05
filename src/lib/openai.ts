@@ -32,6 +32,17 @@ interface CompatibilityAnalysisResponse {
   funFacts: string[];
 }
 
+interface SoulmateAnalysisResponse {
+  idealSoulmate: string[];
+  personalityTraits: string[];
+  physicalCharacteristics: string[];
+  meetingWindow: string[];
+  howYoullMeet: string[];
+  relationshipDynamics: string[];
+  soulmateFacts: string[];
+  timingInsights: string[];
+}
+
 export class OpenAIService {
   private apiKey: string;
   private orgId?: string;
@@ -352,6 +363,220 @@ RULES:
       challenges: ['Growth areas noted'],
       opportunities: ['Opportunities for improvement found'],
       funFacts: ['Interesting astrological connections discovered']
+    };
+  }
+
+  async generateSoulmateDescription(
+    userBirthData: BirthChartData, 
+    userChartData?: any
+  ): Promise<string> {
+    // If no API key is configured, return a placeholder description
+    if (!this.apiKey) {
+      return "A warm, kind person with gentle eyes and a genuine smile, around your age, with a caring personality and good sense of humor.";
+    }
+
+    try {
+      const prompt = `Based on ${userBirthData.name}'s birth chart, create a detailed physical description of their ideal soulmate for AI image generation.
+
+BIRTH INFO:
+- Name: ${userBirthData.name}
+- Born: ${userBirthData.date} at ${userBirthData.time}
+- Location: ${userBirthData.city}
+
+${userChartData ? `CHART DATA: ${JSON.stringify(userChartData, null, 2)}` : 'CHART DATA: Not provided'}
+
+Create a detailed physical description focusing on:
+- Facial features and structure
+- Hair color and style
+- Eye color and expression
+- Body type and build
+- Age range
+- Overall appearance and style
+- Facial expression and demeanor
+
+Keep it realistic and specific for image generation. Focus on physical characteristics that would be visible in a portrait sketch. Use "You" and "${userBirthData.name}" instead of "they" or "their" to make it personal.`;
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert at creating detailed physical descriptions for AI image generation. Be specific about facial features, hair, eyes, and overall appearance. Use "You" and the person\'s name instead of "they" or "their" to make it personal and direct.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 300,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0]?.message?.content || "A warm, kind person with gentle eyes and a genuine smile.";
+      
+    } catch (error) {
+      console.error('Error generating soulmate description:', error);
+      return "A warm, kind person with gentle eyes and a genuine smile, around your age, with a caring personality.";
+    }
+  }
+
+  async analyzeSoulmate(
+    userBirthData: BirthChartData, 
+    userChartData?: any
+  ): Promise<SoulmateAnalysisResponse> {
+    // If no API key is configured, return a placeholder response
+    if (!this.apiKey) {
+      return {
+        idealSoulmate: ['Please configure your OpenAI API key to get AI-powered soulmate insights'],
+        personalityTraits: ['API key not configured'],
+        physicalCharacteristics: ['Please set up your OpenAI API key in the .env file'],
+        meetingWindow: ['Configuration required'],
+        howYoullMeet: ['Set VITE_OPENAI_API_KEY in your environment variables'],
+        relationshipDynamics: ['Configure API key for full functionality'],
+        soulmateFacts: ['API key needed'],
+        timingInsights: ['Missing OpenAI configuration']
+      };
+    }
+
+    try {
+      const prompt = this.buildSoulmatePrompt(userBirthData, userChartData);
+      
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`
+      };
+      
+      // Only add organization header if we have a valid org ID
+      if (this.orgId) {
+        headers['OpenAI-Organization'] = this.orgId;
+      }
+      
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a friendly astrologer who gives short, helpful soulmate readings. Use simple words everyone understands. Be warm and encouraging. Give practical advice they can use today. Keep everything short and easy to read. Always use "You" and the person's name instead of "they" or "their" to make it personal and direct.`
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 1500,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      const analysis = data.choices[0]?.message?.content;
+      
+      if (!analysis) {
+        throw new Error('No soulmate analysis received from OpenAI');
+      }
+
+      return this.parseSoulmateResponse(analysis);
+    } catch (error) {
+      console.error('Error analyzing soulmate:', error);
+      throw error;
+    }
+  }
+
+  private buildSoulmatePrompt(
+    userBirthData: BirthChartData, 
+    userChartData?: any
+  ): string {
+    const basePrompt = `
+Analyze ${userBirthData.name}'s birth chart to reveal their ideal soulmate and when they might meet.
+
+USER BIRTH INFO:
+- Name: ${userBirthData.name}
+- Born: ${userBirthData.date} at ${userBirthData.time}
+- Location: ${userBirthData.city}
+
+${userChartData ? `CHART DATA: ${JSON.stringify(userChartData, null, 2)}` : 'CHART DATA: Not provided (give general soulmate insights based on birth info)'}
+
+Respond in this exact JSON format:
+{
+  "idealSoulmate": ["2-3 short sentences about your ideal soulmate's overall nature"],
+  "personalityTraits": ["2-3 short sentences about your soulmate's personality"],
+  "physicalCharacteristics": ["2-3 short sentences about your soulmate's appearance"],
+  "meetingWindow": ["2-3 short sentences about when you might meet your soulmate"],
+  "howYoullMeet": ["2-3 short sentences about how you'll meet your soulmate"],
+  "relationshipDynamics": ["2-3 short sentences about your relationship dynamics"],
+  "soulmateFacts": ["2-3 short, interesting facts about your soulmate connection"],
+  "timingInsights": ["2-3 short sentences about timing and preparation"]
+}
+
+RULES:
+• Use "You" and "${userBirthData.name}" instead of "they" or "their"
+• Use simple words everyone understands
+• Keep each point short (2-3 sentences max)
+• Be warm and encouraging
+• Give practical advice you can use today
+• Write like talking to a friend
+• Focus on what you can actually do
+• Be specific to your chart, not generic
+• Include both personality and physical traits
+• Make it feel personal and helpful
+• Be positive and hopeful about love
+`;
+
+    return basePrompt;
+  }
+
+  private parseSoulmateResponse(analysis: string): SoulmateAnalysisResponse {
+    try {
+      // Try to extract JSON from the response
+      const jsonMatch = analysis.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          idealSoulmate: parsed.idealSoulmate || [],
+          personalityTraits: parsed.personalityTraits || [],
+          physicalCharacteristics: parsed.physicalCharacteristics || [],
+          meetingWindow: parsed.meetingWindow || [],
+          howYoullMeet: parsed.howYoullMeet || [],
+          relationshipDynamics: parsed.relationshipDynamics || [],
+          soulmateFacts: parsed.soulmateFacts || [],
+          timingInsights: parsed.timingInsights || []
+        };
+      }
+    } catch (error) {
+      console.warn('Failed to parse JSON response, falling back to text parsing:', error);
+    }
+
+    // Fallback: return a basic response
+    return {
+      idealSoulmate: ['Soulmate analysis completed'],
+      personalityTraits: ['Personality traits analyzed'],
+      physicalCharacteristics: ['Physical characteristics reviewed'],
+      meetingWindow: ['Meeting timing identified'],
+      howYoullMeet: ['Meeting circumstances revealed'],
+      relationshipDynamics: ['Relationship dynamics explored'],
+      soulmateFacts: ['Interesting soulmate connections discovered'],
+      timingInsights: ['Timing insights provided']
     };
   }
 }

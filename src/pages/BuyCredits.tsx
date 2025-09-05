@@ -12,7 +12,8 @@ import {
   Zap,
   Check,
   Crown,
-  Gem
+  Gem,
+  Camera
 } from "lucide-react";
 import { CreditBadge } from "@/components/CreditBadge";
 import { useCredits } from "@/contexts/CreditsContext";
@@ -71,7 +72,9 @@ const features = [
   { name: "Birth Chart Generation", cost: 1, icon: <Star className="w-4 h-4" /> },
   { name: "AI Personality Analysis", cost: 3, icon: <Sparkles className="w-4 h-4" /> },
   { name: "Partner Birth Chart", cost: 2, icon: <Users className="w-4 h-4" /> },
-  { name: "Compatibility Analysis", cost: 5, icon: <Heart className="w-4 h-4" /> }
+  { name: "Compatibility Analysis", cost: 5, icon: <Heart className="w-4 h-4" /> },
+  { name: "Soulmate Analysis", cost: 4, icon: <Heart className="w-4 h-4" /> },
+  { name: "Soulmate Sketch", cost: 6, icon: <Camera className="w-4 h-4" /> }
 ];
 
 export default function BuyCredits() {

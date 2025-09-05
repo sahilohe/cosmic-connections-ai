@@ -486,73 +486,76 @@ export default function Solo() {
                     </div>
                   )}
 
-                  {/* Personal Life */}
-                  {aiAnalysis.personalLife && aiAnalysis.personalLife.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-accent mb-4 text-xl">Personal Life</h4>
-                      <div className="grid gap-4">
-                        {aiAnalysis.personalLife.map((life: string, index: number) => (
-                          <div key={index} className="flex items-start gap-4 p-5 bg-muted/20 rounded-lg border border-border/30">
-                            <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-lg leading-relaxed text-foreground">
-                              {life}
-                            </p>
-                          </div>
-                        ))}
+                  {/* Analysis Sections - Side by Side */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Personal Life */}
+                    {aiAnalysis.personalLife && aiAnalysis.personalLife.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-accent mb-4 text-xl">Personal Life</h4>
+                        <div className="grid gap-4">
+                          {aiAnalysis.personalLife.map((life: string, index: number) => (
+                            <div key={index} className="flex items-start gap-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                              <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+                              <p className="text-base leading-relaxed text-foreground">
+                                {life}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Work Life */}
-                  {aiAnalysis.workLife && aiAnalysis.workLife.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-accent mb-4 text-xl">Work Life</h4>
-                      <div className="grid gap-4">
-                        {aiAnalysis.workLife.map((work: string, index: number) => (
-                          <div key={index} className="flex items-start gap-4 p-5 bg-muted/20 rounded-lg border border-border/30">
-                            <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-lg leading-relaxed text-foreground">
-                              {work}
-                            </p>
-                          </div>
-                        ))}
+                    {/* Work Life */}
+                    {aiAnalysis.workLife && aiAnalysis.workLife.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-accent mb-4 text-xl">Work Life</h4>
+                        <div className="grid gap-4">
+                          {aiAnalysis.workLife.map((work: string, index: number) => (
+                            <div key={index} className="flex items-start gap-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                              <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+                              <p className="text-base leading-relaxed text-foreground">
+                                {work}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Life Path */}
-                  {aiAnalysis.lifePath.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-accent mb-4 text-xl">Life Path & Purpose</h4>
-                      <div className="grid gap-4">
-                        {aiAnalysis.lifePath.map((path: string, index: number) => (
-                          <div key={index} className="flex items-start gap-4 p-5 bg-muted/20 rounded-lg border border-border/30">
-                            <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-lg leading-relaxed text-foreground">
-                              {path}
-                            </p>
-                          </div>
-                        ))}
+                    {/* Life Path */}
+                    {aiAnalysis.lifePath.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-accent mb-4 text-xl">Life Path & Purpose</h4>
+                        <div className="grid gap-4">
+                          {aiAnalysis.lifePath.map((path: string, index: number) => (
+                            <div key={index} className="flex items-start gap-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                              <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+                              <p className="text-base leading-relaxed text-foreground">
+                                {path}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Relationships */}
-                  {aiAnalysis.relationships.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-accent mb-4 text-xl">Relationships</h4>
-                      <div className="grid gap-4">
-                        {aiAnalysis.relationships.map((rel: string, index: number) => (
-                          <div key={index} className="flex items-start gap-4 p-5 bg-muted/20 rounded-lg border border-border/30">
-                            <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-lg leading-relaxed text-foreground">
-                              {rel}
-                            </p>
-                          </div>
-                        ))}
+                    {/* Relationships */}
+                    {aiAnalysis.relationships.length > 0 && (
+                      <div>
+                        <h4 className="font-semibold text-accent mb-4 text-xl">Relationships</h4>
+                        <div className="grid gap-4">
+                          {aiAnalysis.relationships.map((rel: string, index: number) => (
+                            <div key={index} className="flex items-start gap-4 p-4 bg-muted/20 rounded-lg border border-border/30">
+                              <div className="w-3 h-3 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+                              <p className="text-base leading-relaxed text-foreground">
+                                {rel}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {/* Challenges & Opportunities */}
                   <div className="grid md:grid-cols-2 gap-6">

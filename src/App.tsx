@@ -10,6 +10,7 @@ import { DeveloperCreditsPanel } from "./components/DeveloperCreditsPanel";
 import Landing from "./pages/Landing";
 import Solo from "./pages/Solo";
 import Compatibility from "./pages/Compatibility";
+import Soulmate from "./pages/Soulmate";
 import BuyCredits from "./pages/BuyCredits";
 import Test from "./pages/Test";
 import NotFound from "./pages/NotFound";
@@ -32,7 +33,7 @@ const App = () => {
                 <Route path="/solo" element={<Solo />} />
                 <Route path="/test" element={<Test />} />
                 <Route path="/compatibility" element={<Compatibility />} />
-                <Route path="/soulmate" element={<div className="min-h-screen flex items-center justify-center pt-16"><h1 className="text-2xl">Soulmate - Coming Soon</h1></div>} />
+                <Route path="/soulmate" element={<Soulmate />} />
                 <Route path="/buy-credits" element={<BuyCredits />} />
                 <Route path="/account" element={<div className="min-h-screen flex items-center justify-center pt-16"><h1 className="text-2xl">Account - Coming Soon</h1></div>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

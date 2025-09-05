@@ -420,6 +420,91 @@ async def compatibility_analysis(user_birth_data: BirthData, partner_birth_data:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error in compatibility analysis: {str(e)}")
 
+@app.post("/api/soulmate-analysis")
+async def soulmate_analysis(birth_data: BirthData):
+    """Get soulmate analysis based on birth chart"""
+    try:
+        # Calculate birth chart
+        user_chart = await calculate_birth_chart_internal(birth_data)
+        
+        # Calculate soulmate indicators using astrological techniques
+        soulmate_indicators = []
+        
+        # Analyze Venus (love and relationships)
+        venus_position = None
+        for planet in user_chart.planets:
+            if planet.planet == 'Venus':
+                venus_position = planet
+                break
+        
+        if venus_position:
+            soulmate_indicators.append({
+                "indicator": "Venus Position",
+                "sign": venus_position.sign,
+                "house": venus_position.house,
+                "description": f"Venus in {venus_position.sign} suggests attraction to {venus_position.sign} qualities"
+            })
+        
+        # Analyze 7th house (partnerships)
+        seventh_house = None
+        for house in user_chart.houses:
+            if house["house"] == 7:
+                seventh_house = house
+                break
+        
+        if seventh_house:
+            soulmate_indicators.append({
+                "indicator": "7th House",
+                "sign": seventh_house["sign"],
+                "description": f"Partnership house in {seventh_house['sign']} indicates soulmate characteristics"
+            })
+        
+        # Analyze Moon (emotional needs)
+        moon_position = None
+        for planet in user_chart.planets:
+            if planet.planet == 'Moon':
+                moon_position = planet
+                break
+        
+        if moon_position:
+            soulmate_indicators.append({
+                "indicator": "Moon Position",
+                "sign": moon_position.sign,
+                "house": moon_position.house,
+                "description": f"Moon in {moon_position.sign} shows emotional compatibility needs"
+            })
+        
+        # Calculate meeting timing based on current transits (simplified)
+        import datetime
+        current_year = datetime.datetime.now().year
+        user_birth_year = int(birth_data.date.split('-')[0])
+        age = current_year - user_birth_year
+        
+        # Simple timing calculation based on age and Venus cycles
+        meeting_timing = []
+        if age < 25:
+            meeting_timing.append("Early 20s - Focus on self-discovery")
+        elif age < 30:
+            meeting_timing.append("Late 20s - Prime meeting window")
+        elif age < 35:
+            meeting_timing.append("Early 30s - Mature love connections")
+        else:
+            meeting_timing.append("30s+ - Deep soul connections")
+        
+        return {
+            "soulmateIndicators": soulmate_indicators,
+            "meetingTiming": meeting_timing,
+            "userChart": user_chart,
+            "metadata": {
+                "calculationType": "soulmate",
+                "ephemerisData": "Swiss Ephemeris",
+                "analysisDate": datetime.datetime.now().isoformat()
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in soulmate analysis: {str(e)}")
+
 @app.post("/api/advanced-analysis")
 async def advanced_analysis(birth_data: BirthData):
     """Get advanced astrological analysis with additional calculations"""
