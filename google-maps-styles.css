@@ -1,0 +1,55 @@
+/* Google Maps PlaceAutocompleteElement styling */
+gmp-place-autocomplete {
+  display: block;
+  width: 100%;
+}
+
+gmp-place-autocomplete input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid hsl(217 32% 17%);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  height: 3rem;
+  color: hsl(213 31% 91%);
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+gmp-place-autocomplete input:focus {
+  outline: none;
+  border-color: hsl(258 60% 60%);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+gmp-place-autocomplete input::placeholder {
+  color: hsl(215 16% 65%);
+}
+
+/* Ensure the autocomplete dropdown matches our theme */
+.pac-container {
+  background-color: hsl(224 39% 10%) !important;
+  border: 1px solid hsl(217 32% 17%) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+.pac-item {
+  background-color: hsl(224 39% 10%) !important;
+  color: hsl(213 31% 91%) !important;
+  border-bottom: 1px solid hsl(217 32% 17%) !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.pac-item:hover {
+  background-color: hsl(217 32% 15%) !important;
+}
+
+.pac-item-selected {
+  background-color: hsl(258 60% 20%) !important;
+}
+
+.pac-matched {
+  color: hsl(258 60% 60%) !important;
+  font-weight: 600 !important;
+}

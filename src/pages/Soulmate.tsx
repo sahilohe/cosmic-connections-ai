@@ -29,6 +29,7 @@ interface BirthData {
   date: string;
   time: string;
   city: string;
+  gender: string;
   coordinates: {
     lat: number;
     lng: number;
@@ -107,7 +108,6 @@ export default function Soulmate() {
       // Deduct 4 credits for soulmate analysis
       deductCredits(4);
     } catch (error) {
-      console.error('Error generating soulmate analysis:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate soulmate analysis');
     } finally {
       setLoading(false);
@@ -134,18 +134,15 @@ export default function Soulmate() {
     setError(null);
 
     try {
-      // Test API key first
-      const isApiKeyValid = await replicateService.testApiKey();
-      if (!isApiKeyValid) {
-        throw new Error('Invalid Replicate API key. Please check your .env file and ensure VITE_REPLICATE_API_KEY is set correctly.');
-      }
-
-      // First generate the soulmate description
-      const description = await openAIService.generateSoulmateDescription(userBirthData!, userBirthChart);
+      // First generate the soulmate description using all available data
+      const description = await openAIService.generateSoulmateDescription(userBirthData!, userBirthChart, soulmateAnalysis);
       setSketchDescription(description);
       
-      // Then generate the sketch using Replicate
-      const sketchUrl = await replicateService.generateSoulmateSketch(description);
+      // Generate detailed Replicate prompt using all data
+      const replicatePrompt = await openAIService.generateReplicatePrompt(userBirthData!, userBirthChart, soulmateAnalysis);
+      
+      // Then generate the sketch using the AI-generated Replicate prompt
+      const sketchUrl = await replicateService.generateSoulmateSketch(replicatePrompt);
       setSoulmateSketch(sketchUrl);
       setSketchGenerated(true);
       
@@ -155,7 +152,6 @@ export default function Soulmate() {
       // Deduct 6 credits for sketch generation
       deductCredits(6);
     } catch (error) {
-      console.error('Error generating soulmate sketch:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate soulmate sketch');
     } finally {
       setSketchLoading(false);
@@ -336,35 +332,39 @@ export default function Soulmate() {
                       </div>
                     </div>
 
-                    {/* Description */}
-                    {sketchDescription && (
+                    {/* Soulmate Details */}
+                    {soulmateAnalysis && (
                       <div className="bg-gradient-to-r from-indigo-50/70 to-blue-50/70 rounded-xl border-2 border-indigo-200/50 p-3">
-                        <h4 className="font-semibold text-indigo-700 mb-2 text-sm">AI Description:</h4>
-                        <p className="text-indigo-600 text-xs">{sketchDescription}</p>
+                        <h4 className="font-semibold text-indigo-700 mb-2 text-sm">✨ Your Soulmate Details:</h4>
+                        <div className="space-y-2">
+                          {soulmateAnalysis.idealSoulmate && soulmateAnalysis.idealSoulmate.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Traits:</span>
+                              <span className="text-indigo-600 text-xs">{soulmateAnalysis.idealSoulmate.slice(0, 2).join(', ')}</span>
+                            </div>
+                          )}
+                          {soulmateAnalysis.personalityTraits && soulmateAnalysis.personalityTraits.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Personality:</span>
+                              <span className="text-indigo-600 text-xs">{soulmateAnalysis.personalityTraits.slice(0, 2).join(', ')}</span>
+                            </div>
+                          )}
+                          {soulmateAnalysis.meetingWindow && soulmateAnalysis.meetingWindow.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Timing:</span>
+                              <span className="text-indigo-600 text-xs">{soulmateAnalysis.meetingWindow[0]}</span>
+                            </div>
+                          )}
+                          {soulmateAnalysis.howYoullMeet && soulmateAnalysis.howYoullMeet.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Meeting:</span>
+                              <span className="text-indigo-600 text-xs">{soulmateAnalysis.howYoullMeet[0]}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
 
-                    {/* Regenerate Button */}
-                    <div className="text-center">
-                      <Button
-                        onClick={handleGenerateSoulmateSketch}
-                        disabled={sketchLoading}
-                        variant="outline"
-                        className="border-indigo-300 text-indigo-600 hover:bg-indigo-50 text-sm"
-                      >
-                        {sketchLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mr-2" />
-                            Regenerating...
-                          </>
-                        ) : (
-                          <>
-                            <Camera className="w-4 h-4 mr-2" />
-                            Generate New Sketch (6 Credits)
-                          </>
-                        )}
-                      </Button>
-                    </div>
                   </div>
                 )}
               </CardContent>
@@ -554,17 +554,17 @@ export default function Soulmate() {
         {/* Focused Sketch Display - Shows when sketch is generated */}
         {sketchGenerated && soulmateSketch && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden">
               {/* Header */}
-              <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-6 text-white">
+              <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-4 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-white/20 rounded-full">
-                      <Camera className="w-6 h-6" />
+                      <Camera className="w-5 h-5" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">Your Soulmate Sketch</h2>
-                      <p className="text-indigo-100">AI-generated portrait based on your birth chart</p>
+                      <h2 className="text-xl font-bold">Your Soulmate Sketch</h2>
+                      <p className="text-indigo-100 text-sm">AI-generated portrait based on your birth chart</p>
                     </div>
                   </div>
                   <Button
@@ -572,56 +572,64 @@ export default function Soulmate() {
                     variant="ghost"
                     className="text-white hover:bg-white/20 rounded-full p-2"
                   >
-                    <div className="w-6 h-6 text-xl">×</div>
+                    <div className="w-5 h-5 text-lg">×</div>
                   </Button>
                 </div>
               </div>
 
               {/* Sketch Content */}
-              <div className="p-6">
+              <div className="p-4">
                 <div className="text-center">
-                  <div className="bg-gradient-to-r from-indigo-50/70 to-blue-50/70 rounded-xl border-2 border-indigo-200/50 p-6 mb-6">
+                  <div className="bg-gradient-to-r from-indigo-50/70 to-blue-50/70 rounded-lg border-2 border-indigo-200/50 p-4 mb-4">
                     <img 
                       src={soulmateSketch} 
                       alt="Soulmate Sketch" 
                       className="max-w-full h-auto rounded-lg shadow-lg mx-auto"
-                      style={{ maxHeight: '60vh' }}
+                      style={{ maxHeight: '50vh' }}
                     />
                   </div>
 
-                  {/* Description */}
-                  {sketchDescription && (
-                    <div className="bg-gradient-to-r from-indigo-50/70 to-blue-50/70 rounded-xl border-2 border-indigo-200/50 p-4 mb-6">
-                      <h4 className="font-semibold text-indigo-700 mb-2">AI Description:</h4>
-                      <p className="text-indigo-600 text-sm">{sketchDescription}</p>
+                  {/* Soulmate Details */}
+                  {soulmateAnalysis && (
+                    <div className="bg-gradient-to-r from-indigo-50/70 to-blue-50/70 rounded-lg border-2 border-indigo-200/50 p-3 mb-4">
+                      <h4 className="font-semibold text-indigo-700 mb-2 text-sm">✨ Your Soulmate Details:</h4>
+                      <div className="space-y-2">
+                        {soulmateAnalysis.idealSoulmate && soulmateAnalysis.idealSoulmate.length > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Traits:</span>
+                            <span className="text-indigo-600 text-xs">{soulmateAnalysis.idealSoulmate.slice(0, 2).join(', ')}</span>
+                          </div>
+                        )}
+                        {soulmateAnalysis.personalityTraits && soulmateAnalysis.personalityTraits.length > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Personality:</span>
+                            <span className="text-indigo-600 text-xs">{soulmateAnalysis.personalityTraits.slice(0, 2).join(', ')}</span>
+                          </div>
+                        )}
+                        {soulmateAnalysis.meetingWindow && soulmateAnalysis.meetingWindow.length > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Timing:</span>
+                            <span className="text-indigo-600 text-xs">{soulmateAnalysis.meetingWindow[0]}</span>
+                          </div>
+                        )}
+                        {soulmateAnalysis.howYoullMeet && soulmateAnalysis.howYoullMeet.length > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="text-indigo-500 text-xs font-medium min-w-[80px]">Meeting:</span>
+                            <span className="text-indigo-600 text-xs">{soulmateAnalysis.howYoullMeet[0]}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-4 justify-center">
-                    <Button
-                      onClick={handleGenerateSoulmateSketch}
-                      disabled={sketchLoading}
-                      className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white"
-                    >
-                      {sketchLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Regenerating...
-                        </>
-                      ) : (
-                        <>
-                          <Camera className="w-4 h-4 mr-2" />
-                          Generate New Sketch (6 Credits)
-                        </>
-                      )}
-                    </Button>
+                  {/* Close Button */}
+                  <div className="flex justify-center">
                     <Button
                       onClick={closeSketchFocus}
                       variant="outline"
                       className="border-indigo-300 text-indigo-600 hover:bg-indigo-50"
                     >
-                      Close Focus
+                      Close
                     </Button>
                   </div>
                 </div>

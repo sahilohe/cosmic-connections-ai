@@ -3,6 +3,7 @@ interface BirthData {
   date: string;
   time: string;
   city: string;
+  gender: string;
   coordinates: {
     lat: number;
     lng: number;
@@ -83,7 +84,6 @@ export class SwissEphemerisService {
       const chartData = await response.json();
       return chartData;
     } catch (error) {
-      console.error('Error calling Swiss Ephemeris API:', error);
       throw error;
     }
   }
@@ -93,7 +93,6 @@ export class SwissEphemerisService {
       const response = await fetch(`${this.baseUrl}/api/health`);
       return response.ok;
     } catch (error) {
-      console.error('Backend health check failed:', error);
       return false;
     }
   }

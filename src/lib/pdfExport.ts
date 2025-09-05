@@ -129,7 +129,6 @@ export class PDFExporter {
       pdf.save(fileName);
       
     } catch (error) {
-      console.error('Error generating PDF:', error);
       throw new Error('Failed to generate PDF. Please try again.');
     }
   }
@@ -352,7 +351,6 @@ export class PDFExporter {
       URL.revokeObjectURL(url);
 
     } catch (error) {
-      console.error('Error generating PNG:', error);
       throw new Error('Failed to generate PNG. Please try again.');
     }
   }

@@ -13,7 +13,7 @@ interface CreditsContextType {
 const CreditsContext = createContext<CreditsContextType | undefined>(undefined);
 
 export function CreditsProvider({ children }: { children: React.ReactNode }) {
-  const [credits, setCredits] = useState<number>(3); // Start with 3 free credits
+  const [credits, setCredits] = useState<number>(5); // Start with 5 free credits
   
   // Check if user is in developer mode
   const isDeveloper = import.meta.env.DEV || localStorage.getItem('cosmic-connections-dev-mode') === 'true';
@@ -22,7 +22,13 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const savedCredits = localStorage.getItem('cosmic-connections-credits');
     if (savedCredits !== null) {
-      setCredits(parseInt(savedCredits, 10));
+      const parsedCredits = parseInt(savedCredits, 10);
+      // If user has less than 5 credits, give them 5 (for existing users)
+      if (parsedCredits < 5) {
+        setCredits(5);
+      } else {
+        setCredits(parsedCredits);
+      }
     }
   }, []);
 
@@ -44,7 +50,7 @@ export function CreditsProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetCredits = () => {
-    setCredits(3); // Reset to 3 free credits
+    setCredits(5); // Reset to 5 free credits
   };
 
   return (

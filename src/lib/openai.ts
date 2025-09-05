@@ -3,6 +3,7 @@ interface BirthChartData {
   date: string;
   time: string;
   city: string;
+  gender: string;
   coordinates?: {
     lat: number;
     lng: number;
@@ -51,9 +52,8 @@ export class OpenAIService {
     this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     const orgId = import.meta.env.VITE_OPENAI_ORG_ID;
     
-    // Don't throw error if API key is missing, just log a warning
+    // Don't throw error if API key is missing, just set empty
     if (!this.apiKey || this.apiKey === 'your_actual_openai_api_key_here') {
-      console.warn('OpenAI API key not found or not configured. Please set VITE_OPENAI_API_KEY in your .env file');
       this.apiKey = '';
     }
     
@@ -127,7 +127,6 @@ export class OpenAIService {
 
       return this.parseAnalysisResponse(analysis);
     } catch (error) {
-      console.error('Error analyzing birth chart:', error);
       throw error;
     }
   }
@@ -188,7 +187,7 @@ RULES:
         };
       }
     } catch (error) {
-      console.warn('Failed to parse JSON response, falling back to text parsing:', error);
+      // Fallback to text parsing
     }
 
     // Fallback: parse the text response manually
@@ -277,7 +276,6 @@ RULES:
 
       return this.parseCompatibilityResponse(analysis);
     } catch (error) {
-      console.error('Error analyzing compatibility:', error);
       throw error;
     }
   }
@@ -350,7 +348,7 @@ RULES:
         };
       }
     } catch (error) {
-      console.warn('Failed to parse JSON response, falling back to text parsing:', error);
+      // Fallback to text parsing
     }
 
     // Fallback: return a basic response
@@ -368,7 +366,8 @@ RULES:
 
   async generateSoulmateDescription(
     userBirthData: BirthChartData, 
-    userChartData?: any
+    userChartData?: any,
+    soulmateAnalysis?: any
   ): Promise<string> {
     // If no API key is configured, return a placeholder description
     if (!this.apiKey) {
@@ -376,25 +375,38 @@ RULES:
     }
 
     try {
-      const prompt = `Based on ${userBirthData.name}'s birth chart, create a detailed physical description of their ideal soulmate for AI image generation.
+      const prompt = `Based on ${userBirthData.name}'s birth chart and soulmate analysis, create a detailed physical description of their ideal soulmate for pencil sketch generation.
 
 BIRTH INFO:
 - Name: ${userBirthData.name}
 - Born: ${userBirthData.date} at ${userBirthData.time}
 - Location: ${userBirthData.city}
+${userBirthData.coordinates ? `- Coordinates: ${userBirthData.coordinates.lat}°N, ${userBirthData.coordinates.lng}°E` : ''}
 
-${userChartData ? `CHART DATA: ${JSON.stringify(userChartData, null, 2)}` : 'CHART DATA: Not provided'}
+${userChartData ? `BIRTH CHART DATA: ${JSON.stringify(userChartData, null, 2)}` : 'BIRTH CHART DATA: Not provided'}
+
+${soulmateAnalysis ? `SOULMATE ANALYSIS:
+- Ideal Soulmate: ${soulmateAnalysis.idealSoulmate?.join(', ') || 'Not specified'}
+- Personality Traits: ${soulmateAnalysis.personalityTraits?.join(', ') || 'Not specified'}
+- Physical Characteristics: ${soulmateAnalysis.physicalCharacteristics?.join(', ') || 'Not specified'}
+- Relationship Dynamics: ${soulmateAnalysis.relationshipDynamics?.join(', ') || 'Not specified'}
+- Meeting Window: ${soulmateAnalysis.meetingWindow?.join(', ') || 'Not specified'}
+- How You'll Meet: ${soulmateAnalysis.howYoullMeet?.join(', ') || 'Not specified'}
+- Soulmate Facts: ${soulmateAnalysis.soulmateFacts?.join(', ') || 'Not specified'}
+- Timing Insights: ${soulmateAnalysis.timingInsights?.join(', ') || 'Not specified'}` : 'SOULMATE ANALYSIS: Not provided'}
 
 Create a detailed physical description focusing on:
-- Facial features and structure
-- Hair color and style
-- Eye color and expression
-- Body type and build
-- Age range
+- Facial structure and bone structure (defined/soft/angular/strong/delicate)
+- Hair style, texture, and color (consider astrological influences)
+- Eye color, shape, and expression (piercing/dreamy/expressive/calm)
+- Age range and maturity level
 - Overall appearance and style
-- Facial expression and demeanor
+- Body type and posture
+- Distinctive features or characteristics
+- Energy and presence
 
-Keep it realistic and specific for image generation. Focus on physical characteristics that would be visible in a portrait sketch. Use "You" and "${userBirthData.name}" instead of "they" or "their" to make it personal.`;
+Use all the astrological data and analysis to create a comprehensive description. Keep it detailed but under 100 words. Focus on features visible in a portrait sketch. Use "You" and "${userBirthData.name}" instead of "they" or "their".`;
+
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -407,14 +419,14 @@ Keep it realistic and specific for image generation. Focus on physical character
           messages: [
             {
               role: 'system',
-              content: 'You are an expert at creating detailed physical descriptions for AI image generation. Be specific about facial features, hair, eyes, and overall appearance. Use "You" and the person\'s name instead of "they" or "their" to make it personal and direct.'
+              content: 'You are an expert astrologer and artist who creates detailed physical descriptions for pencil sketch generation. Use all the provided birth chart data and soulmate analysis to create comprehensive, accurate descriptions. Focus on facial features, hair, eyes, age, and distinctive characteristics. Keep descriptions under 100 words but make them detailed and specific. Use "You" and the person\'s name instead of "they" or "their" to make it personal and direct.'
             },
             {
               role: 'user',
               content: prompt
             }
           ],
-          max_tokens: 300,
+          max_tokens: 200,
           temperature: 0.7
         })
       });
@@ -428,8 +440,96 @@ Keep it realistic and specific for image generation. Focus on physical character
       return data.choices[0]?.message?.content || "A warm, kind person with gentle eyes and a genuine smile.";
       
     } catch (error) {
-      console.error('Error generating soulmate description:', error);
       return "A warm, kind person with gentle eyes and a genuine smile, around your age, with a caring personality.";
+    }
+  }
+
+  async generateReplicatePrompt(
+    userBirthData: BirthChartData, 
+    userChartData?: any,
+    soulmateAnalysis?: any
+  ): Promise<string> {
+    // If no API key is configured, return a placeholder prompt
+    if (!this.apiKey) {
+      return "pencil sketch portrait, young person, gentle eyes, warm smile, black and white, realistic, detailed facial features, pencil strokes, artistic shading, professional quality, portrait study, character sketch";
+    }
+
+    try {
+              // Calculate age from birth date
+        const birthDate = new Date(userBirthData.date);
+        const currentDate = new Date();
+        const age = currentDate.getFullYear() - birthDate.getFullYear();
+        const ageRange = `${Math.max(18, age - 3)}-${age + 3}`;
+
+              // Extract planetary data from the correct birth chart structure
+        const sunPlanet = userChartData?.planets?.find((p: any) => p.planet === 'Sun');
+        const moonPlanet = userChartData?.planets?.find((p: any) => p.planet === 'Moon');
+        const venusPlanet = userChartData?.planets?.find((p: any) => p.planet === 'Venus');
+        const marsPlanet = userChartData?.planets?.find((p: any) => p.planet === 'Mars');
+        const seventhHouse = userChartData?.houses?.find((h: any) => h.house === 7);
+
+        const prompt = `Create a brief Replicate prompt for a pure pencil sketch of ${userBirthData.name}'s ideal soulmate based on their birth chart.
+
+BIRTH CHART DATA:
+- Sun: ${sunPlanet?.sign || 'Unknown'} (${sunPlanet?.degreeInSign?.toFixed(1) || '0'}°)
+- Moon: ${moonPlanet?.sign || 'Unknown'} (${moonPlanet?.degreeInSign?.toFixed(1) || '0'}°)
+- Rising: ${userChartData?.ascendant?.sign || 'Unknown'} (${userChartData?.ascendant?.degreeInSign?.toFixed(1) || '0'}°)
+- Venus: ${venusPlanet?.sign || 'Unknown'} (${venusPlanet?.degreeInSign?.toFixed(1) || '0'}°)
+- Mars: ${marsPlanet?.sign || 'Unknown'} (${marsPlanet?.degreeInSign?.toFixed(1) || '0'}°)
+- 7th House: ${seventhHouse?.sign || 'Unknown'}
+
+SOULMATE SPECIFICATIONS:
+- Age: ${ageRange} years old
+- Gender: ${userBirthData.gender === 'male' ? 'Female' : 'Male'} (opposite of user's gender)
+- Key Traits: ${soulmateAnalysis?.idealSoulmate?.slice(0, 3).join(', ') || 'Astrologically compatible'}
+- Personality: ${soulmateAnalysis?.personalityTraits?.slice(0, 2).join(', ') || 'Harmonious energy'}
+
+Create a brief, specific Replicate prompt (under 50 words) for a pure pencil sketch portrait. Focus on:
+- Facial features based on Venus (attraction) and Mars (physical energy)
+- Expression based on Moon (emotional compatibility) and Rising (first impression)
+- Age-appropriate appearance for ${ageRange} years old
+- Gender: ${userBirthData.gender === 'male' ? 'Female' : 'Male'} soulmate (opposite gender)
+- Pure pencil sketch, black and white, no text or symbols, hand-drawn style
+
+Make it concise but specific for the best pencil sketch results.`;
+
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+                              {
+                    role: 'system',
+                    content: 'You are an expert astrologer creating brief Replicate prompts for pencil sketches. Analyze the birth chart data (Sun, Moon, Venus, Mars, Rising, 7th house) to determine soulmate characteristics. Create a concise prompt (under 50 words) that focuses on: facial features (Venus/Mars), expression (Moon/Rising), age-appropriate appearance, gender (opposite of user gender - male users get female soulmates, female users get male soulmates), and pure pencil sketch style. Be specific but brief for optimal results.'
+                  },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+                          max_tokens: 100,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+      }
+
+      const data = await response.json();
+      const replicatePrompt = data.choices[0]?.message?.content || "pencil sketch portrait, young person, gentle eyes, warm smile, black and white, realistic, detailed facial features, pencil strokes, artistic shading, professional quality, portrait study, character sketch";
+      
+      
+      return replicatePrompt;
+      
+    } catch (error) {
+      return "pencil sketch portrait, young person, gentle eyes, warm smile, black and white, realistic, detailed facial features, pencil strokes, artistic shading, professional quality, portrait study, character sketch";
     }
   }
 
@@ -498,7 +598,6 @@ Keep it realistic and specific for image generation. Focus on physical character
 
       return this.parseSoulmateResponse(analysis);
     } catch (error) {
-      console.error('Error analyzing soulmate:', error);
       throw error;
     }
   }
@@ -564,7 +663,7 @@ RULES:
         };
       }
     } catch (error) {
-      console.warn('Failed to parse JSON response, falling back to text parsing:', error);
+      // Fallback to text parsing
     }
 
     // Fallback: return a basic response

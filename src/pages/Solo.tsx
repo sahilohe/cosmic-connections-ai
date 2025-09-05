@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
   Stars, 
@@ -32,6 +31,7 @@ interface BirthData {
   date: string;
   time: string;
   city: string;
+  gender: string;
   coordinates: {
     lat: number;
     lng: number;
@@ -47,6 +47,7 @@ export default function Solo() {
     date: "",
     time: "",
     city: "",
+    gender: "",
     coordinates: null,
     timezone: undefined
   });
@@ -95,7 +96,6 @@ export default function Solo() {
       // Deduct 1 credit for chart generation
       deductCredits(1);
     } catch (error) {
-      console.error('Error generating chart:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate birth chart');
     } finally {
       setLoading(false);
@@ -129,7 +129,6 @@ export default function Solo() {
       // Deduct 3 credits for AI analysis
       deductCredits(3);
     } catch (error) {
-      console.error('Error generating AI analysis:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate AI analysis');
     } finally {
       setLoading(false);
@@ -152,7 +151,6 @@ export default function Solo() {
         coordinates: birthData.coordinates
       });
     } catch (error) {
-      console.error('Error exporting PNG:', error);
       setError(error instanceof Error ? error.message : 'Failed to export PNG');
     } finally {
       setLoading(false);
@@ -161,7 +159,7 @@ export default function Solo() {
 
   // Add error boundary
   if (error) {
-    console.error('Component error:', error);
+    // Error handled by error state
   }
 
   return (
@@ -175,7 +173,7 @@ export default function Solo() {
             <Stars className="w-10 h-10 text-accent animate-twinkle" />
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Generate your precise birth chart using Swiss Ephemeris calculations
+            Generate your precise birth chart using Swiss Ephemeris data
           </p>
         </div>
 
@@ -210,6 +208,25 @@ export default function Solo() {
                   onChange={(e) => setBirthData(prev => ({ ...prev, name: e.target.value }))}
                   className="bg-background/50 text-base h-12"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="gender" className="text-base font-semibold flex items-center gap-2 mb-2">
+                  <User className="w-4 h-4" />
+                  Gender
+                </Label>
+                <Select
+                  value={birthData.gender}
+                  onValueChange={(value) => setBirthData(prev => ({ ...prev, gender: value }))}
+                >
+                  <SelectTrigger className="bg-background/50 text-base h-12">
+                    <SelectValue placeholder="Select your gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -260,7 +277,7 @@ export default function Solo() {
               <div className="pt-2">
                 <Button 
                   onClick={handleGenerateChart}
-                  disabled={!birthData.name || !birthData.date || !birthData.coordinates || loading || credits < 1}
+                  disabled={!birthData.name || !birthData.date || !birthData.gender || !birthData.coordinates || loading || credits < 1}
                   className="w-full h-14 text-lg font-semibold btn-cosmic"
                   variant="stellar"
                   size="lg"

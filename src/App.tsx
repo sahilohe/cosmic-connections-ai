@@ -12,7 +12,6 @@ import Solo from "./pages/Solo";
 import Compatibility from "./pages/Compatibility";
 import Soulmate from "./pages/Soulmate";
 import BuyCredits from "./pages/BuyCredits";
-import Test from "./pages/Test";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,7 +30,6 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/solo" element={<Solo />} />
-                <Route path="/test" element={<Test />} />
                 <Route path="/compatibility" element={<Compatibility />} />
                 <Route path="/soulmate" element={<Soulmate />} />
                 <Route path="/buy-credits" element={<BuyCredits />} />

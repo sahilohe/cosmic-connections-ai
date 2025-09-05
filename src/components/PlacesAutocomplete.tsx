@@ -57,7 +57,7 @@ export function PlacesAutocomplete({
         return;
       }
 
-      // Load Google Maps script with optimized parameters
+      // Load Google Maps script with proper async loading and CSP compliance
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMaps`;
       script.async = true;
@@ -72,7 +72,6 @@ export function PlacesAutocomplete({
       
       script.onerror = () => {
         setError('Failed to load Google Maps API');
-        console.error('Failed to load Google Maps API');
         delete (window as any).initGoogleMaps;
       };
       
@@ -113,7 +112,7 @@ export function PlacesAutocomplete({
         }
       }
     } catch (error) {
-      console.error('Error fetching timezone:', error);
+      // Timezone fetch failed, continue without it
     }
     
     // Fallback to simplified timezone detection
@@ -151,7 +150,7 @@ export function PlacesAutocomplete({
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
 
-      // Initialize autocomplete
+      // Use the reliable legacy Autocomplete approach
       autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
         types: ['(cities)'],
         fields: ['name', 'geometry', 'formatted_address', 'address_components']
@@ -188,7 +187,7 @@ export function PlacesAutocomplete({
         }
       };
     } catch (error) {
-      console.error('Error initializing Google Places:', error);
+      // Google Places initialization failed
     }
   }, [isLoaded, onChange]);
 

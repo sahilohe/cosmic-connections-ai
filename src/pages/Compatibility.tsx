@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -32,6 +32,7 @@ interface BirthData {
   date: string;
   time: string;
   city: string;
+  gender: string;
   coordinates: {
     lat: number;
     lng: number;
@@ -62,6 +63,7 @@ export default function Compatibility() {
     date: "",
     time: "",
     city: "",
+    gender: "",
     coordinates: null,
     timezone: undefined
   });
@@ -124,7 +126,6 @@ export default function Compatibility() {
       // Deduct 2 credits for partner chart generation
       deductCredits(2);
     } catch (error) {
-      console.error('Error generating partner birth chart:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate partner birth chart');
     } finally {
       setLoading(false);
@@ -163,7 +164,6 @@ export default function Compatibility() {
       // Deduct 5 credits for compatibility analysis
       deductCredits(5);
     } catch (error) {
-      console.error('Error generating compatibility analysis:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate compatibility analysis');
     } finally {
       setLoading(false);
@@ -266,6 +266,27 @@ export default function Compatibility() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="partner-gender" className="text-base font-semibold flex items-center gap-2 text-rose-700">
+                  <div className="p-1 bg-gradient-to-r from-rose-400 to-pink-400 rounded">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  Partner's Gender
+                </Label>
+                <Select
+                  value={partnerBirthData.gender}
+                  onValueChange={(value) => handlePartnerBirthDataChange('gender', value)}
+                >
+                  <SelectTrigger className="bg-gradient-to-r from-rose-50/50 to-pink-50/50 border-rose-300/50 text-base h-12 input-cosmic focus:border-rose-400 focus:ring-rose-400/20">
+                    <SelectValue placeholder="Select partner's gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="partner-date" className="text-base font-semibold flex items-center gap-2 text-purple-700">
                   <div className="p-1 bg-gradient-to-r from-purple-400 to-indigo-400 rounded">
                     <Calendar className="w-4 h-4 text-white" />
@@ -316,7 +337,7 @@ export default function Compatibility() {
             <div className="flex justify-center">
               <Button
                 onClick={handleGeneratePartnerChart}
-                disabled={loading || !partnerBirthData.name || !partnerBirthData.date || !partnerBirthData.time || !partnerBirthData.coordinates}
+                disabled={loading || !partnerBirthData.name || !partnerBirthData.date || !partnerBirthData.time || !partnerBirthData.gender || !partnerBirthData.coordinates}
                 className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white px-10 py-4 text-lg font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-2 border-white/20"
               >
                 {loading ? (
