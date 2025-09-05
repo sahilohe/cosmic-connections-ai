@@ -160,7 +160,9 @@ Check the console output for detailed error messages and debugging information.
 
 The frontend is configured to call this backend at `http://localhost:8000`.
 
-To change the backend URL, update the frontend's `.env` file:
+To change the backend URL, update the root `.env` file:
 ```env
 VITE_BACKEND_URL=http://your-backend-url:port
 ```
+
+**Note**: The backend now uses the same `.env` file as the frontend, located in the root directory.

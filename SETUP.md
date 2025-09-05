@@ -61,17 +61,27 @@ This guide will help you set up the required API keys to use the Google Places A
    ```
 
 ### 3.2 Add Your API Keys
-Edit the `.env` file and replace the placeholder values:
+Edit the `.env` file in the root directory and replace the placeholder values:
 
 ```env
+# ===========================================
+# EigenSage AI - Environment Variables
+# ===========================================
+
 # Google Places API Key
 VITE_GOOGLE_PLACES_API_KEY=your_actual_google_api_key_here
+
+# Replicate API Key for image generation
+VITE_REPLICATE_API_KEY=your_actual_replicate_api_key_here
 
 # OpenAI API Key
 VITE_OPENAI_API_KEY=your_actual_openai_api_key_here
 
 # Optional: OpenAI Organization ID (if you have one)
 VITE_OPENAI_ORG_ID=your_openai_org_id_here
+
+# Backend API URL
+VITE_BACKEND_URL=http://localhost:8000
 ```
 
 **Important**: Never commit your `.env` file to version control!

@@ -76,11 +76,11 @@ export default function Landing() {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-accent to-primary bg-clip-text text-transparent">
-            Astral Lab
+            EigenSage AI
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Discover your cosmic blueprint with Swiss Ephemeris precision and AI-powered insights
+            Your Personal Cosmic Sage - Discover your cosmic blueprint with Swiss Ephemeris precision and AI-powered insights
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -156,7 +156,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto text-center">
           <div className="bg-muted/20 rounded-lg p-6 border border-border/50">
             <p className="text-sm text-muted-foreground">
-              <strong className="text-accent">Disclaimer:</strong> Astral Lab provides symbolic entertainment and personal reflection tools. 
+              <strong className="text-accent">Disclaimer:</strong> EigenSage AI provides symbolic entertainment and personal reflection tools. 
               Astrology is not scientifically validated. Please do not use astrological insights for medical, 
               legal, financial, or other important life decisions.
             </p>

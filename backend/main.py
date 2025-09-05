@@ -10,10 +10,10 @@ import replicate
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from root directory
+load_dotenv(dotenv_path="../.env")
 
-app = FastAPI(title="Cosmic Connections AI - Swiss Ephemeris API")
+app = FastAPI(title="EigenSage AI - Swiss Ephemeris API")
 
 # Enable CORS for frontend
 app.add_middleware(
@@ -63,7 +63,7 @@ class ImageGenerationRequest(BaseModel):
     soulmate_description: str
 
 # Configure Replicate
-replicate_client = replicate.Client(api_token=os.getenv("REPLICATE_API_TOKEN"))
+replicate_client = replicate.Client(api_token=os.getenv("VITE_REPLICATE_API_KEY"))
 
 ZODIAC_SIGNS = [
     'Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo',
@@ -621,7 +621,7 @@ async def advanced_analysis(birth_data: BirthData):
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "service": "Cosmic Connections AI Backend"}
+    return {"status": "healthy", "service": "EigenSage AI Backend"}
 
 @app.post("/api/generate-soulmate-sketch")
 async def generate_soulmate_sketch(request: ImageGenerationRequest):

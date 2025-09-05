@@ -1,6 +1,6 @@
-# Cosmic Connections AI
+# EigenSage AI
 
-A sophisticated astrological application that generates precise birth charts using real coordinates and provides AI-powered insights through special AstroGPT integration.
+Your Personal Cosmic Sage - A sophisticated astrological application that generates precise birth charts using real coordinates and provides AI-powered insights through advanced AI integration.
 
 ## Features
 

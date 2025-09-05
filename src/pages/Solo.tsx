@@ -462,7 +462,7 @@ export default function Solo() {
                     AI Analysis
                   </CardTitle>
                   <CardDescription className="text-base">
-                    Get personalized insights powered by AstroGPT AI
+                    Get personalized insights powered by EigenSage AI
                   </CardDescription>
                 </div>
                 <CreditBadge credits={credits} />
@@ -626,7 +626,7 @@ export default function Solo() {
                   </div>
                   <h3 className="text-2xl font-bold mb-3">Unlock Your Cosmic Insights</h3>
                   <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto">
-                    Generate detailed AI insights about your birth chart and discover your cosmic potential
+                    Generate detailed AI insights about your birth chart with your personal cosmic sage
                   </p>
                   <Button 
                     onClick={handleGenerateAnalysis}
